@@ -1,0 +1,32 @@
+@page "{id:int}"
+@model SSSClientWeb.Pages.Customers.DeleteModel
+@{
+    ViewData["Title"] = "Delete Customer";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Delete Customer</h2>
+    <a asp-page="Index" class="btn btn-outline-secondary">← Back to Customers</a>
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="alert alert-danger">
+            Are you sure you want to delete this customer? This cannot be undone.
+        </div>
+
+        <dl class="row">
+            <dt class="col-sm-4">Customer Name</dt>
+            <dd class="col-sm-8">@Model.Customer.CustomerName</dd>
+
+            <dt class="col-sm-4">Client</dt>
+            <dd class="col-sm-8">@Model.Customer.ClientRecNavigation?.ClientName</dd>
+        </dl>
+
+        <form method="post">
+            <input type="hidden" asp-for="Customer.CustomerRec" />
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>
