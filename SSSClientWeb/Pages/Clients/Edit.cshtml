@@ -1,0 +1,62 @@
+@page "{id:int}"
+@model SSSClientWeb.Pages.Clients.EditModel
+@{
+    ViewData["Title"] = "Edit Client";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Edit Client</h2>
+    <a asp-page="Index" class="btn btn-outline-secondary">← Back to Clients</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <input type="hidden" asp-for="Client.ClientRec" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Client.ClientName" class="form-label">Client Name</label>
+                <input asp-for="Client.ClientName" class="form-control" />
+                <span asp-validation-for="Client.ClientName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Client.ClientAddr1" class="form-label">Address Line 1</label>
+                <input asp-for="Client.ClientAddr1" class="form-control" />
+                <span asp-validation-for="Client.ClientAddr1" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Client.ClientAddr2" class="form-label">Address Line 2</label>
+                <input asp-for="Client.ClientAddr2" class="form-control" />
+                <span asp-validation-for="Client.ClientAddr2" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Client.ClientCity" class="form-label">City</label>
+                    <input asp-for="Client.ClientCity" class="form-control" />
+                    <span asp-validation-for="Client.ClientCity" class="text-danger"></span>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label asp-for="Client.ClientState" class="form-label">State</label>
+                    <input asp-for="Client.ClientState" class="form-control" maxlength="2" />
+                    <span asp-validation-for="Client.ClientState" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Client.ClientZip" class="form-label">Zip</label>
+                    <input asp-for="Client.ClientZip" class="form-control" />
+                    <span asp-validation-for="Client.ClientZip" class="text-danger"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

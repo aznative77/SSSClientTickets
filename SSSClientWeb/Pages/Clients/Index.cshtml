@@ -1,0 +1,52 @@
+@page
+@model SSSClientWeb.Pages.Clients.IndexModel
+@{
+    ViewData["Title"] = "Clients";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Clients</h2>
+    <a asp-page="Create" class="btn btn-primary">+ Add Client</a>
+</div>
+
+@if (!Model.Clients.Any())
+{
+    <div class="alert alert-info">No clients found. Add one to get started.</div>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Zip</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var client in Model.Clients)
+            {
+                <tr>
+                    <td>@client.ClientName</td>
+                    <td>
+                        @client.ClientAddr1
+                        @if (!string.IsNullOrEmpty(client.ClientAddr2))
+                        {
+                            <br />@client.ClientAddr2
+                        }
+                    </td>
+                    <td>@client.ClientCity</td>
+                    <td>@client.ClientState</td>
+                    <td>@client.ClientZip</td>
+                    <td class="text-end">
+                        <a asp-page="Edit" asp-route-id="@client.ClientRec" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a asp-page="Delete" asp-route-id="@client.ClientRec" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
