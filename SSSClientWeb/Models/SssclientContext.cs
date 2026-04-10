@@ -68,6 +68,15 @@ public partial class SssclientContext : DbContext
             entity.Property(e => e.CustomerName)
                 .HasMaxLength(50)
                 .HasColumnName("Customer_Name");
+            entity.Property(e => e.Email)
+                .HasMaxLength(50)
+                .HasColumnName("Customer_Email");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .HasColumnName("Customer_Phone");
+            entity.Property(e => e.Mobile)
+                .HasMaxLength(20)
+                .HasColumnName("Customer_Mobile");
 
             entity.HasOne(d => d.ClientRecNavigation).WithMany(p => p.Customers)
                 .HasForeignKey(d => d.ClientRec)

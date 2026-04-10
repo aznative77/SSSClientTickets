@@ -20,6 +20,9 @@ else
             <tr>
                 <th>Customer Name</th>
                 <th>Client</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Cell Phone</th>
                 <th></th>
             </tr>
         </thead>
@@ -29,6 +32,9 @@ else
                 <tr>
                     <td>@customer.CustomerName</td>
                     <td>@customer.ClientRecNavigation?.ClientName</td>
+                    <td>@customer.Email</td>
+                    <td>@customer.Phone</td>
+                    <td>@customer.Mobile</td>
                     <td class="text-end">
                         <a asp-page="Edit" asp-route-id="@customer.CustomerRec" class="btn btn-sm btn-outline-primary">Edit</a>
                         <a asp-page="Delete" asp-route-id="@customer.CustomerRec" class="btn btn-sm btn-outline-danger">Delete</a>
