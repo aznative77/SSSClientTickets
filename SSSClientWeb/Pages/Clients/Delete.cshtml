@@ -1,0 +1,47 @@
+@page "{id:int}"
+@model SSSClientWeb.Pages.Clients.DeleteModel
+@{
+    ViewData["Title"] = "Delete Client";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Delete Client</h2>
+    <a asp-page="Index" class="btn btn-outline-secondary">← Back to Clients</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="alert alert-danger">
+            Are you sure you want to delete this client? This cannot be undone.
+        </div>
+
+        <dl class="row">
+            <dt class="col-sm-4">Client Name</dt>
+            <dd class="col-sm-8">@Model.Client.ClientName</dd>
+
+            <dt class="col-sm-4">Address</dt>
+            <dd class="col-sm-8">
+                @Model.Client.ClientAddr1
+                @if (!string.IsNullOrEmpty(Model.Client.ClientAddr2))
+                {
+                    <br />@Model.Client.ClientAddr2
+                }
+            </dd>
+
+            <dt class="col-sm-4">City</dt>
+            <dd class="col-sm-8">@Model.Client.ClientCity</dd>
+
+            <dt class="col-sm-4">State</dt>
+            <dd class="col-sm-8">@Model.Client.ClientState</dd>
+
+            <dt class="col-sm-4">Zip</dt>
+            <dd class="col-sm-8">@Model.Client.ClientZip</dd>
+        </dl>
+
+        <form method="post">
+            <input type="hidden" asp-for="Client.ClientRec" />
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>
