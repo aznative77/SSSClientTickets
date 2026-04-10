@@ -1,0 +1,72 @@
+@page
+@model SSSClientWeb.Pages.Tickets.CreateModel
+@{
+    ViewData["Title"] = "Add Ticket";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Add Ticket</h2>
+    <a asp-page="Index" class="btn btn-outline-secondary">← Back to Tickets</a>
+</div>
+
+<div class="row">
+    <div class="col-md-7">
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Ticket.ClientRec" class="form-label">Client</label>
+                    <select asp-for="Ticket.ClientRec" asp-items="Model.ClientList" class="form-select" id="clientSelect">
+                        <option value="">-- Select a Client --</option>
+                    </select>
+                    <span asp-validation-for="Ticket.ClientRec" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Ticket.CustomerRec" class="form-label">Customer</label>
+                    <select asp-for="Ticket.CustomerRec" asp-items="Model.CustomerList" class="form-select" id="customerSelect">
+                        <option value="">-- Select a Customer --</option>
+                    </select>
+                    <span asp-validation-for="Ticket.CustomerRec" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Ticket.Issue" class="form-label">Issue</label>
+                <textarea asp-for="Ticket.Issue" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Ticket.Issue" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Ticket.Resolution" class="form-label">Resolution</label>
+                <textarea asp-for="Ticket.Resolution" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Ticket.Resolution" class="text-danger"></span>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label asp-for="Ticket.StatusRec" class="form-label">Status</label>
+                    <select asp-for="Ticket.StatusRec" asp-items="Model.StatusList" class="form-select"></select>
+                    <span asp-validation-for="Ticket.StatusRec" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Ticket.DateLogged" class="form-label">Date Logged</label>
+                    <input asp-for="Ticket.DateLogged" class="form-control" type="date" />
+                    <span asp-validation-for="Ticket.DateLogged" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Ticket.DateResolved" class="form-label">Date Resolved</label>
+                    <input asp-for="Ticket.DateResolved" class="form-control" type="date" />
+                    <span asp-validation-for="Ticket.DateResolved" class="text-danger"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Ticket</button>
+            <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

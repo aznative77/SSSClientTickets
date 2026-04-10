@@ -10,6 +10,12 @@ public partial class Customer
     public int CustomerRec { get; set; }
 
     public string? CustomerName { get; set; }
+    
+    public string? Email { get; set; }
+
+    public string? Phone { get; set; }
+
+    public string? Mobile { get; set; }
 
     public virtual Client ClientRecNavigation { get; set; } = null!;
 

@@ -1,0 +1,41 @@
+@page "{id:int}"
+@model SSSClientWeb.Pages.Tickets.DeleteModel
+@{
+    ViewData["Title"] = "Delete Ticket";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Delete Ticket #@Model.Ticket.TicketRec</h2>
+    <a asp-page="Index" class="btn btn-outline-secondary">← Back to Tickets</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="alert alert-danger">
+            Are you sure you want to delete this ticket? All associated time logs will also be deleted. This cannot be undone.
+        </div>
+
+        <dl class="row">
+            <dt class="col-sm-4">Client</dt>
+            <dd class="col-sm-8">@Model.Ticket.ClientRecNavigation?.ClientName</dd>
+
+            <dt class="col-sm-4">Customer</dt>
+            <dd class="col-sm-8">@Model.Ticket.CustomerRecNavigation?.CustomerName</dd>
+
+            <dt class="col-sm-4">Status</dt>
+            <dd class="col-sm-8">@Model.Ticket.StatusRecNavigation?.Status</dd>
+
+            <dt class="col-sm-4">Date Logged</dt>
+            <dd class="col-sm-8">@Model.Ticket.DateLogged?.ToString("MM/dd/yyyy")</dd>
+
+            <dt class="col-sm-4">Issue</dt>
+            <dd class="col-sm-8">@Model.Ticket.Issue</dd>
+        </dl>
+
+        <form method="post">
+            <input type="hidden" asp-for="Ticket.TicketRec" />
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,136 @@
+@page "{id:int}"
+@model SSSClientWeb.Pages.Tickets.DetailModel
+@{
+    ViewData["Title"] = "Ticket #" + Model.Ticket.TicketRec;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Ticket #@Model.Ticket.TicketRec</h2>
+    <div>
+        <a asp-page="Edit" asp-route-id="@Model.Ticket.TicketRec" class="btn btn-outline-primary">Edit</a>
+        <a asp-page="Index" class="btn btn-outline-secondary ms-2">← Back to Tickets</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+
+        <!-- Ticket Info -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Ticket Details</strong>
+                @{
+                    var badgeClass = Model.Ticket.StatusRecNavigation?.Status switch
+                    {
+                        "Open" => "bg-danger",
+                        "In Progress" => "bg-warning text-dark",
+                        "Resolved" => "bg-success",
+                        _ => "bg-secondary"
+                    };
+                }
+                <span class="badge @badgeClass">@Model.Ticket.StatusRecNavigation?.Status</span>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Client</dt>
+                    <dd class="col-sm-9">@Model.Ticket.ClientRecNavigation?.ClientName</dd>
+
+                    <dt class="col-sm-3">Customer</dt>
+                    <dd class="col-sm-9">@Model.Ticket.CustomerRecNavigation?.CustomerName</dd>
+
+                    <dt class="col-sm-3">Date Logged</dt>
+                    <dd class="col-sm-9">@Model.Ticket.DateLogged?.ToString("MM/dd/yyyy")</dd>
+
+                    <dt class="col-sm-3">Date Resolved</dt>
+                    <dd class="col-sm-9">@(Model.Ticket.DateResolved?.ToString("MM/dd/yyyy") ?? "—")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Issue -->
+        <div class="card mb-4">
+            <div class="card-header"><strong>Issue</strong></div>
+            <div class="card-body">
+                <p class="mb-0" style="white-space: pre-wrap;">@Model.Ticket.Issue</p>
+            </div>
+        </div>
+
+        <!-- Resolution -->
+        <div class="card mb-4">
+            <div class="card-header"><strong>Resolution</strong></div>
+            <div class="card-body">
+                @if (string.IsNullOrEmpty(Model.Ticket.Resolution))
+                {
+                    <p class="text-muted mb-0">No resolution entered yet.</p>
+                }
+                else
+                {
+                    <p class="mb-0" style="white-space: pre-wrap;">@Model.Ticket.Resolution</p>
+                }
+            </div>
+        </div>
+
+        <!-- Time Log -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Time Log</strong>
+                <a asp-page="/TicketTime/Create" asp-route-ticketRec="@Model.Ticket.TicketRec" class="btn btn-sm btn-primary">+ Log Time</a>
+            </div>
+            <div class="card-body p-0">
+                @if (!Model.Ticket.TicketTimes.Any())
+                {
+                    <p class="text-muted p-3 mb-0">No time logged yet.</p>
+                }
+                else
+                {
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Duration</th>
+                                <th>Notes</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var entry in Model.Ticket.TicketTimes.OrderByDescending(t => t.StartTime))
+                            {
+                                var duration = (entry.StartTime.HasValue && entry.EndTime.HasValue)
+                                    ? (int)(entry.EndTime.Value - entry.StartTime.Value).TotalMinutes
+                                    : 0;
+                                <tr>
+                                    <td>@entry.StartTime?.ToString("MM/dd/yyyy hh:mm tt")</td>
+                                    <td>@entry.EndTime?.ToString("MM/dd/yyyy hh:mm tt")</td>
+                                    <td>@duration min</td>
+                                    <td>@entry.Notes</td>
+                                    <td class="text-end">
+                                        <a asp-page="/TicketTime/Edit" asp-route-id="@entry.TimeRec" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="2"><strong>Total Time</strong></td>
+                                <td colspan="3">
+                                    <strong>
+                                        @{
+                                            var totalMinutes = Model.Ticket.TicketTimes
+                                                .Where(t => t.StartTime.HasValue && t.EndTime.HasValue)
+                                                .Sum(t => (int)(t.EndTime!.Value - t.StartTime!.Value).TotalMinutes);
+                                            var hours = totalMinutes / 60;
+                                            var minutes = totalMinutes % 60;
+                                        }
+                                        @hours hr @minutes min
+                                    </strong>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
