@@ -1,0 +1,50 @@
+@page "{id:int}"
+@model SSSClientWeb.Pages.Sites.DeleteModel
+@{
+    ViewData["Title"] = "Delete Site";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Delete Site</h2>
+    <a asp-page="Index" class="btn btn-outline-secondary">← Back to Sites</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="alert alert-danger">
+            Are you sure you want to delete this site? This cannot be undone.
+        </div>
+
+        <dl class="row">
+            <dt class="col-sm-4">Client</dt>
+            <dd class="col-sm-8">@Model.Site.ClientRecNavigation?.ClientName</dd>
+
+            <dt class="col-sm-4">Site Name</dt>
+            <dd class="col-sm-8">@Model.Site.SiteName</dd>
+
+            <dt class="col-sm-4">Address</dt>
+            <dd class="col-sm-8">
+                @Model.Site.SiteAddress1
+                @if (!string.IsNullOrEmpty(Model.Site.SiteAddress2))
+                {
+                    <br />@Model.Site.SiteAddress2
+                }
+            </dd>
+
+            <dt class="col-sm-4">City</dt>
+            <dd class="col-sm-8">@Model.Site.SiteCity</dd>
+
+            <dt class="col-sm-4">State</dt>
+            <dd class="col-sm-8">@Model.Site.SiteState</dd>
+
+            <dt class="col-sm-4">Zip</dt>
+            <dd class="col-sm-8">@Model.Site.SiteZip</dd>
+        </dl>
+
+        <form method="post">
+            <input type="hidden" asp-for="Site.SiteRec" />
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>

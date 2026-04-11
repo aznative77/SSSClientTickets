@@ -35,6 +35,9 @@
                     <dt class="col-sm-3">Client</dt>
                     <dd class="col-sm-9">@Model.Ticket.ClientRecNavigation?.ClientName</dd>
 
+                    <dt class="col-sm-3">Site</dt>
+                    <dd class="col-sm-9">@(Model.Ticket.SiteRecNavigation?.SiteName ?? "—")</dd>
+
                     <dt class="col-sm-3">Customer</dt>
                     <dd class="col-sm-9">@Model.Ticket.CustomerRecNavigation?.CustomerName</dd>
 

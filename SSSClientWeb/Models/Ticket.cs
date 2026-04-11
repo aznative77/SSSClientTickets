@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace SSSClientWeb.Models;
@@ -21,9 +21,13 @@ public partial class Ticket
 
     public int StatusRec { get; set; }
 
+    public int? SiteRec { get; set; }
+
     public virtual Client ClientRecNavigation { get; set; } = null!;
 
     public virtual Customer CustomerRecNavigation { get; set; } = null!;
+
+    public virtual Site? SiteRecNavigation { get; set; }
 
     public virtual TicketStatus StatusRecNavigation { get; set; } = null!;
 

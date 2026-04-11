@@ -29,6 +29,14 @@
             </div>
 
             <div class="mb-3">
+                <label asp-for="Ticket.SiteRec" class="form-label">Site <span class="text-muted">(optional)</span></label>
+                <select asp-for="Ticket.SiteRec" asp-items="Model.SiteList" class="form-select">
+                    <option value="">-- Select a Site --</option>
+                </select>
+                <span asp-validation-for="Ticket.SiteRec" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
                 <label asp-for="Ticket.Issue" class="form-label">Issue</label>
                 <textarea asp-for="Ticket.Issue" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Ticket.Issue" class="text-danger"></span>
