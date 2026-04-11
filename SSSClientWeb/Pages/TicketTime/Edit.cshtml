@@ -1,0 +1,72 @@
+@page "{id:int}"
+@model SSSClientWeb.Pages.TicketTime.EditModel
+@{
+    ViewData["Title"] = "Edit Time Entry";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Edit Time Entry</h2>
+    <a asp-page="/Tickets/Detail" asp-route-id="@Model.TicketEntry.TicketRec" class="btn btn-outline-secondary">← Back to Ticket</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+
+        @if (Model.TicketInfo != null)
+        {
+            <div class="alert alert-secondary mb-4">
+                <strong>@Model.TicketInfo.ClientRecNavigation?.ClientName</strong> —
+                @Model.TicketInfo.CustomerRecNavigation?.CustomerName<br />
+                <small class="text-muted">@Model.TicketInfo.Issue?.Substring(0, Math.Min(Model.TicketInfo.Issue.Length, 100))</small>
+            </div>
+        }
+
+        <form method="post">
+            <input type="hidden" asp-for="TicketEntry.TimeRec" />
+            <input type="hidden" asp-for="TicketEntry.TicketRec" />
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="TicketEntry.StartTime" class="form-label">Start Time</label>
+                    <input asp-for="TicketEntry.StartTime" class="form-control" type="datetime-local" step="60" />
+                    <span asp-validation-for="TicketEntry.StartTime" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TicketEntry.EndTime" class="form-label">End Time</label>
+                    <input asp-for="TicketEntry.EndTime" class="form-control" type="datetime-local" step="60" />
+                    <span asp-validation-for="TicketEntry.EndTime" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TicketEntry.Notes" class="form-label">Notes</label>
+                <textarea asp-for="TicketEntry.Notes" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="TicketEntry.Notes" class="text-danger"></span>
+            </div>
+
+            @{
+                var duration = (Model.TicketEntry.StartTime.HasValue && Model.TicketEntry.EndTime.HasValue)
+                    ? (int)(Model.TicketEntry.EndTime.Value - Model.TicketEntry.StartTime.Value).TotalMinutes
+                    : 0;
+                var hours = duration / 60;
+                var minutes = duration % 60;
+            }
+
+            @if (duration > 0)
+            {
+                <div class="alert alert-info mb-3">
+                    Current duration: <strong>@hours hr @minutes min</strong>
+                </div>
+            }
+
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a asp-page="/Tickets/Detail" asp-route-id="@Model.TicketEntry.TicketRec" class="btn btn-outline-secondary ms-2">Cancel</a>
+            <a asp-page="Delete" asp-route-id="@Model.TicketEntry.TimeRec" class="btn btn-outline-danger ms-2">Delete</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
