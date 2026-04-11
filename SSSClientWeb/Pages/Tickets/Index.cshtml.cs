@@ -22,6 +22,7 @@ namespace SSSClientWeb.Pages.Tickets
                 .Include(t => t.CustomerRecNavigation)
                 .Include(t => t.StatusRecNavigation)
                 .OrderByDescending(t => t.DateLogged)
+                .ThenByDescending(t => t.TicketRec)
                 .ToListAsync();
         }
     }
