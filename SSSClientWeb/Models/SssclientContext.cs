@@ -19,6 +19,8 @@ public partial class SssclientContext : DbContext
 
     public virtual DbSet<Customer> Customers { get; set; }
 
+    public virtual DbSet<Site> Sites { get; set; }
+
     public virtual DbSet<Ticket> Tickets { get; set; }
 
     public virtual DbSet<TicketStatus> TicketStatuses { get; set; }
@@ -84,6 +86,38 @@ public partial class SssclientContext : DbContext
                 .HasConstraintName("FK_Customer_Client");
         });
 
+        modelBuilder.Entity<Site>(entity =>
+        {
+            entity.HasKey(e => e.SiteRec);
+
+            entity.ToTable("Site");
+
+            entity.Property(e => e.SiteAddress1)
+                .HasMaxLength(50)
+                .HasColumnName("Site_Address1");
+            entity.Property(e => e.SiteAddress2)
+                .HasMaxLength(50)
+                .HasColumnName("Site_Address2");
+            entity.Property(e => e.SiteCity)
+                .HasMaxLength(50)
+                .HasColumnName("Site_City");
+            entity.Property(e => e.SiteName)
+                .HasMaxLength(255)
+                .HasColumnName("Site_Name");
+            entity.Property(e => e.SiteState)
+                .HasMaxLength(2)
+                .HasColumnName("Site_State");
+            entity.Property(e => e.SiteZip)
+                .HasMaxLength(10)
+                .IsFixedLength()
+                .HasColumnName("Site_Zip");
+
+            entity.HasOne(d => d.ClientRecNavigation).WithMany(p => p.Sites)
+                .HasForeignKey(d => d.ClientRec)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Site_Client");
+        });
+
         modelBuilder.Entity<Ticket>(entity =>
         {
             entity.HasKey(e => e.TicketRec);
@@ -103,6 +137,10 @@ public partial class SssclientContext : DbContext
                 .HasForeignKey(d => d.CustomerRec)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Ticket_Customer");
+
+            entity.HasOne(d => d.SiteRecNavigation).WithMany(p => p.Tickets)
+                .HasForeignKey(d => d.SiteRec)
+                .HasConstraintName("FK_Ticket_Site");
 
             entity.HasOne(d => d.StatusRecNavigation).WithMany(p => p.Tickets)
                 .HasForeignKey(d => d.StatusRec)

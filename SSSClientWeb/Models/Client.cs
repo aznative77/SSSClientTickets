@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace SSSClientWeb.Models;
@@ -20,6 +20,8 @@ public partial class Client
     public string? ClientZip { get; set; }
 
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
+
+    public virtual ICollection<Site> Sites { get; set; } = new List<Site>();
 
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 }

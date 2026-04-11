@@ -21,6 +21,7 @@ namespace SSSClientWeb.Pages.Tickets
         public SelectList ClientList { get; set; } = default!;
         public SelectList CustomerList { get; set; } = default!;
         public SelectList StatusList { get; set; } = default!;
+        public SelectList SiteList { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -74,6 +75,14 @@ namespace SSSClientWeb.Pages.Tickets
             StatusList = new SelectList(
                 await _context.TicketStatuses.ToListAsync(),
                 "StatusRec", "Status", Ticket.StatusRec);
+
+            SiteList = new SelectList(
+                await _context.Sites
+                    .Include(s => s.ClientRecNavigation)
+                    .OrderBy(s => s.ClientRecNavigation.ClientName)
+                    .ThenBy(s => s.SiteName)
+                    .ToListAsync(),
+                "SiteRec", "SiteName", Ticket.SiteRec);
         }
     }
 }
