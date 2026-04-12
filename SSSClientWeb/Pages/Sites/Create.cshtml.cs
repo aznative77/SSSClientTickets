@@ -44,5 +44,29 @@ namespace SSSClientWeb.Pages.Sites
 
             return RedirectToPage("Index");
         }
+
+        public async Task<IActionResult> OnPostAjaxAsync()
+        {
+            ModelState.Remove("Site.ClientRecNavigation");
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                
+                return new JsonResult(new { success = false, message = string.Join(" ", errors) });
+            }
+
+            _context.Sites.Add(Site);
+            await _context.SaveChangesAsync();
+
+            return new JsonResult(new { 
+                success = true, 
+                siteRec = Site.SiteRec, 
+                siteName = Site.SiteName 
+            });
+        }
     }
 }

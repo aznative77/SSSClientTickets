@@ -49,5 +49,30 @@ namespace SSSClientWeb.Pages.Customers
 
             return RedirectToPage("Index");
         }
+
+        public async Task<IActionResult> OnPostAjaxAsync()
+        {
+            // Remove ClientRecNavigation from validation since it's a nav property
+            ModelState.Remove("Customer.ClientRecNavigation");
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                
+                return new JsonResult(new { success = false, message = string.Join(" ", errors) });
+            }
+
+            _context.Customers.Add(Customer);
+            await _context.SaveChangesAsync();
+
+            return new JsonResult(new { 
+                success = true, 
+                customerRec = Customer.CustomerRec, 
+                customerName = Customer.CustomerName 
+            });
+        }
     }
 }
