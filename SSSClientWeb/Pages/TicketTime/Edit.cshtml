@@ -29,12 +29,12 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label asp-for="TicketEntry.StartTime" class="form-label">Start Time</label>
-                    <input asp-for="TicketEntry.StartTime" class="form-control" type="datetime-local" step="60" />
+                    <input asp-for="TicketEntry.StartTime" value="@(Model.TicketEntry.StartTime?.ToString("yyyy-MM-ddTHH:mm"))" class="form-control" type="datetime-local" step="60" />
                     <span asp-validation-for="TicketEntry.StartTime" class="text-danger"></span>
                 </div>
                 <div class="col-md-6">
                     <label asp-for="TicketEntry.EndTime" class="form-label">End Time</label>
-                    <input asp-for="TicketEntry.EndTime" class="form-control" type="datetime-local" step="60" />
+                    <input asp-for="TicketEntry.EndTime" value="@(Model.TicketEntry.EndTime?.ToString("yyyy-MM-ddTHH:mm"))" class="form-control" type="datetime-local" step="60" />
                     <span asp-validation-for="TicketEntry.EndTime" class="text-danger"></span>
                 </div>
             </div>
