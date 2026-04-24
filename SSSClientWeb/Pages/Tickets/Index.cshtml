@@ -1,5 +1,6 @@
 @page
 @model SSSClientWeb.Pages.Tickets.IndexModel
+@using Microsoft.AspNetCore.Mvc.Rendering
 @{
     ViewData["Title"] = "Tickets";
 }
@@ -7,6 +8,96 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Tickets</h2>
     <a asp-page="Create" class="btn btn-primary">+ Add Ticket</a>
+</div>
+
+<!-- Filter Section -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Filter Tickets</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" asp-page="Index" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <div class="dropdown" id="statusDropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="statusButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Statuses
+                    </button>
+                    <ul class="dropdown-menu w-100" aria-labelledby="statusButton">
+                        @foreach (var status in Model.StatusOptions)
+                        {
+                            <li class="px-3 py-2">
+                                <div class="form-check">
+                                    <input class="form-check-input status-checkbox" type="checkbox" value="@status.Value" id="status_@status.Value" name="FilterStatusRec" @(Model.FilterStatusRec?.Contains(int.Parse(status.Value)) == true ? "checked" : "")>
+                                    <label class="form-check-label" for="status_@status.Value">
+                                        @status.Text
+                                    </label>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <label for="FilterClientRec" class="form-label">Client</label>
+                <select class="form-select" id="FilterClientRec" name="FilterClientRec" asp-items="Model.ClientOptions" asp-for="FilterClientRec">
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Customer</label>
+                <div class="dropdown" id="customerDropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="customerButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Customers
+                    </button>
+                    <ul class="dropdown-menu w-100" aria-labelledby="customerButton" id="customerDropdownMenu">
+                        @foreach (var customer in Model.CustomerOptions)
+                        {
+                            <li class="px-3 py-2">
+                                <div class="form-check">
+                                    <input class="form-check-input customer-checkbox" type="checkbox" value="@customer.Value" id="customer_@customer.Value" name="FilterCustomerRec" @(Model.FilterCustomerRec?.Contains(int.Parse(customer.Value)) == true ? "checked" : "")>
+                                    <label class="form-check-label" for="customer_@customer.Value">
+                                        @customer.Text
+                                    </label>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <label for="FilterIssueSearch" class="form-label">Issue Search</label>
+                <input type="text" class="form-control" id="FilterIssueSearch" name="FilterIssueSearch" placeholder="Search issue..." asp-for="FilterIssueSearch">
+            </div>
+
+            <div class="col-md-3">
+                <label for="FilterDateLoggedFrom" class="form-label">Date Logged From</label>
+                <input type="date" class="form-control" id="FilterDateLoggedFrom" name="FilterDateLoggedFrom" asp-for="FilterDateLoggedFrom">
+            </div>
+
+            <div class="col-md-3">
+                <label for="FilterDateLoggedTo" class="form-label">Date Logged To</label>
+                <input type="date" class="form-control" id="FilterDateLoggedTo" name="FilterDateLoggedTo" asp-for="FilterDateLoggedTo">
+            </div>
+
+            <div class="col-md-3">
+                <label for="FilterDateResolvedFrom" class="form-label">Date Resolved From</label>
+                <input type="date" class="form-control" id="FilterDateResolvedFrom" name="FilterDateResolvedFrom" asp-for="FilterDateResolvedFrom">
+            </div>
+
+            <div class="col-md-3">
+                <label for="FilterDateResolvedTo" class="form-label">Date Resolved To</label>
+                <input type="date" class="form-control" id="FilterDateResolvedTo" name="FilterDateResolvedTo" asp-for="FilterDateResolvedTo">
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a asp-page="Index" class="btn btn-secondary">Clear Filters</a>
+            </div>
+        </form>
+    </div>
 </div>
 
 @if (!Model.Tickets.Any())
@@ -68,3 +159,124 @@ else
         </tbody>
     </table>
 }
+
+<style>
+    .dropdown-menu {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .status-checkbox {
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    // Update button text to show selected count for Status
+    function updateStatusButtonText() {
+        const checkedCount = document.querySelectorAll('.status-checkbox:checked').length;
+        const button = document.getElementById('statusButton');
+        
+        if (checkedCount === 0) {
+            button.textContent = 'Select Statuses';
+        } else {
+            button.textContent = checkedCount + (checkedCount === 1 ? ' Status' : ' Statuses') + ' Selected';
+        }
+    }
+    
+    // Update button text to show selected count for Customer
+    function updateCustomerButtonText() {
+        const checkedCount = document.querySelectorAll('.customer-checkbox:checked').length;
+        const button = document.getElementById('customerButton');
+        
+        if (checkedCount === 0) {
+            button.textContent = 'Select Customers';
+        } else {
+            button.textContent = checkedCount + (checkedCount === 1 ? ' Customer' : ' Customers') + ' Selected';
+        }
+    }
+    
+    // Load customers for selected client
+    async function loadCustomersByClient() {
+        const clientSelect = document.getElementById('FilterClientRec');
+        const clientId = clientSelect.value;
+        
+        if (!clientId) {
+            // Clear all customer checkboxes
+            document.querySelectorAll('.customer-checkbox').forEach(cb => cb.checked = false);
+            updateCustomerButtonText();
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/tickets/customers-by-client?clientId=${clientId}`);
+            const customers = await response.json();
+            
+            const dropdownMenu = document.getElementById('customerDropdownMenu');
+            dropdownMenu.innerHTML = '';
+            
+            if (customers.length === 0) {
+                dropdownMenu.innerHTML = '<li class="px-3 py-2"><em>No customers for this client</em></li>';
+            } else {
+                customers.forEach(customer => {
+                    const li = document.createElement('li');
+                    li.className = 'px-3 py-2';
+                    li.innerHTML = `
+                        <div class="form-check">
+                            <input class="form-check-input customer-checkbox" type="checkbox" value="${customer.value}" id="customer_${customer.value}" name="FilterCustomerRec">
+                            <label class="form-check-label" for="customer_${customer.value}">
+                                ${customer.text}
+                            </label>
+                        </div>
+                    `;
+                    dropdownMenu.appendChild(li);
+                    
+                    // Add event listener to new checkbox
+                    li.querySelector('.customer-checkbox').addEventListener('change', updateCustomerButtonText);
+                    li.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                });
+            }
+            
+            updateCustomerButtonText();
+        } catch (error) {
+            console.error('Error loading customers:', error);
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateStatusButtonText();
+        updateCustomerButtonText();
+        
+        // Add change listeners to status checkboxes
+        document.querySelectorAll('.status-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateStatusButtonText);
+        });
+        
+        // Prevent dropdown from closing when clicking on status checkboxes
+        document.querySelectorAll('#statusDropdown .dropdown-menu li').forEach(li => {
+            li.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+        
+        // Add change listeners to customer checkboxes
+        document.querySelectorAll('.customer-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateCustomerButtonText);
+        });
+        
+        // Prevent dropdown from closing when clicking on customer checkboxes
+        document.querySelectorAll('#customerDropdown .dropdown-menu li').forEach(li => {
+            li.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+        
+        // Add listener to client select
+        const clientSelect = document.getElementById('FilterClientRec');
+        clientSelect.addEventListener('change', loadCustomersByClient);
+    });
+</script>
+

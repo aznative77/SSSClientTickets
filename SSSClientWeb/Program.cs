@@ -4,6 +4,7 @@ using SSSClientWeb.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
 
 // Register the database context
 builder.Services.AddDbContext<SssclientContext>(options =>
@@ -22,6 +23,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
+app.MapControllers();
 app.MapRazorPages();
 
 app.Run();
