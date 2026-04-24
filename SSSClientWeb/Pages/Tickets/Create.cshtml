@@ -240,7 +240,7 @@
                 $('#saveCustomerBtn').prop('disabled', true).text('Saving...');
                 
                 $.ajax({
-                    url: '/Customers/Create',
+                    url: '/Customers/Create?handler=Ajax',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(customerData),
@@ -298,7 +298,7 @@
                 $('#saveSiteBtn').prop('disabled', true).text('Saving...');
                 
                 $.ajax({
-                    url: '/Sites/Create',
+                    url: '/Sites/Create?handler=Ajax',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(siteData),
