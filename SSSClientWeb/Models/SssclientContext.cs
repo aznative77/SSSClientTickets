@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace SSSClientWeb.Models;
+namespace SSSClientTickets.Models;
 
 public partial class SssclientContext : DbContext
 {
