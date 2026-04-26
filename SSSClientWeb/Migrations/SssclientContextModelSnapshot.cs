@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SSSClientWeb.Models;
+using SSSClientTickets.Models;
 
 #nullable disable
 
-namespace SSSClientWeb.Migrations
+namespace SSSClientTickets.Migrations
 {
     [DbContext(typeof(SssclientContext))]
     partial class SssclientContextModelSnapshot : ModelSnapshot
@@ -22,7 +22,7 @@ namespace SSSClientWeb.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SSSClientWeb.Models.Client", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Client", b =>
                 {
                     b.Property<int>("ClientRec")
                         .ValueGeneratedOnAdd()
@@ -67,7 +67,7 @@ namespace SSSClientWeb.Migrations
                     b.ToTable("Client", (string)null);
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.Customer", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Customer", b =>
                 {
                     b.Property<int>("CustomerRec")
                         .ValueGeneratedOnAdd()
@@ -105,7 +105,7 @@ namespace SSSClientWeb.Migrations
                     b.ToTable("Customer", (string)null);
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.Site", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Site", b =>
                 {
                     b.Property<int>("SiteRec")
                         .ValueGeneratedOnAdd()
@@ -154,7 +154,7 @@ namespace SSSClientWeb.Migrations
                     b.ToTable("Site", (string)null);
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.Ticket", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Ticket", b =>
                 {
                     b.Property<int>("TicketRec")
                         .ValueGeneratedOnAdd()
@@ -201,7 +201,7 @@ namespace SSSClientWeb.Migrations
                     b.ToTable("Ticket", (string)null);
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.TicketStatus", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.TicketStatus", b =>
                 {
                     b.Property<int>("StatusRec")
                         .ValueGeneratedOnAdd()
@@ -219,7 +219,7 @@ namespace SSSClientWeb.Migrations
                     b.ToTable("TicketStatus", (string)null);
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.TicketTime", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.TicketTime", b =>
                 {
                     b.Property<int>("TimeRec")
                         .ValueGeneratedOnAdd()
@@ -246,7 +246,7 @@ namespace SSSClientWeb.Migrations
                     b.ToTable("TicketTime", (string)null);
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.VwOpenTicket", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.VwOpenTicket", b =>
                 {
                     b.Property<string>("ClientName")
                         .HasMaxLength(50)
@@ -274,7 +274,7 @@ namespace SSSClientWeb.Migrations
                     b.ToView("vw_OpenTickets", (string)null);
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.VwTicketTime", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.VwTicketTime", b =>
                 {
                     b.Property<int>("TicketRec")
                         .HasColumnType("int");
@@ -287,9 +287,9 @@ namespace SSSClientWeb.Migrations
                     b.ToView("vw_TicketTime", (string)null);
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.Customer", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Customer", b =>
                 {
-                    b.HasOne("SSSClientWeb.Models.Client", "ClientRecNavigation")
+                    b.HasOne("SSSClientTickets.Models.Client", "ClientRecNavigation")
                         .WithMany("Customers")
                         .HasForeignKey("ClientRec")
                         .IsRequired()
@@ -298,9 +298,9 @@ namespace SSSClientWeb.Migrations
                     b.Navigation("ClientRecNavigation");
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.Site", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Site", b =>
                 {
-                    b.HasOne("SSSClientWeb.Models.Client", "ClientRecNavigation")
+                    b.HasOne("SSSClientTickets.Models.Client", "ClientRecNavigation")
                         .WithMany("Sites")
                         .HasForeignKey("ClientRec")
                         .IsRequired()
@@ -309,26 +309,26 @@ namespace SSSClientWeb.Migrations
                     b.Navigation("ClientRecNavigation");
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.Ticket", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Ticket", b =>
                 {
-                    b.HasOne("SSSClientWeb.Models.Client", "ClientRecNavigation")
+                    b.HasOne("SSSClientTickets.Models.Client", "ClientRecNavigation")
                         .WithMany("Tickets")
                         .HasForeignKey("ClientRec")
                         .IsRequired()
                         .HasConstraintName("FK_Ticket_Client");
 
-                    b.HasOne("SSSClientWeb.Models.Customer", "CustomerRecNavigation")
+                    b.HasOne("SSSClientTickets.Models.Customer", "CustomerRecNavigation")
                         .WithMany("Tickets")
                         .HasForeignKey("CustomerRec")
                         .IsRequired()
                         .HasConstraintName("FK_Ticket_Customer");
 
-                    b.HasOne("SSSClientWeb.Models.Site", "SiteRecNavigation")
+                    b.HasOne("SSSClientTickets.Models.Site", "SiteRecNavigation")
                         .WithMany("Tickets")
                         .HasForeignKey("SiteRec")
                         .HasConstraintName("FK_Ticket_Site");
 
-                    b.HasOne("SSSClientWeb.Models.TicketStatus", "StatusRecNavigation")
+                    b.HasOne("SSSClientTickets.Models.TicketStatus", "StatusRecNavigation")
                         .WithMany("Tickets")
                         .HasForeignKey("StatusRec")
                         .IsRequired()
@@ -343,9 +343,9 @@ namespace SSSClientWeb.Migrations
                     b.Navigation("StatusRecNavigation");
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.TicketTime", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.TicketTime", b =>
                 {
-                    b.HasOne("SSSClientWeb.Models.Ticket", "TicketRecNavigation")
+                    b.HasOne("SSSClientTickets.Models.Ticket", "TicketRecNavigation")
                         .WithMany("TicketTimes")
                         .HasForeignKey("TicketRec")
                         .IsRequired()
@@ -354,7 +354,7 @@ namespace SSSClientWeb.Migrations
                     b.Navigation("TicketRecNavigation");
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.Client", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Client", b =>
                 {
                     b.Navigation("Customers");
 
@@ -363,22 +363,22 @@ namespace SSSClientWeb.Migrations
                     b.Navigation("Tickets");
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.Customer", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Customer", b =>
                 {
                     b.Navigation("Tickets");
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.Site", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Site", b =>
                 {
                     b.Navigation("Tickets");
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.Ticket", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.Ticket", b =>
                 {
                     b.Navigation("TicketTimes");
                 });
 
-            modelBuilder.Entity("SSSClientWeb.Models.TicketStatus", b =>
+            modelBuilder.Entity("SSSClientTickets.Models.TicketStatus", b =>
                 {
                     b.Navigation("Tickets");
                 });

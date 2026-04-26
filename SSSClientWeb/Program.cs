@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SSSClientWeb.Models;
+using SSSClientTickets.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

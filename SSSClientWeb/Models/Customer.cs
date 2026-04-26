@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SSSClientWeb.Models;
+namespace SSSClientTickets.Models;
 
 public partial class Customer
 {

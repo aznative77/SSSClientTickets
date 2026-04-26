@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using SSSClientWeb.Models;
+using SSSClientTickets.Models;
 
-namespace SSSClientWeb.Pages.Sites
+namespace SSSClientTickets.Pages.Sites
 {
     public class DeleteModel : PageModel
     {

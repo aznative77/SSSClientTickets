@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SSSClientWeb.Models;
+using SSSClientTickets.Models;
 
-namespace SSSClientWeb.Controllers
+namespace SSSClientTickets.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

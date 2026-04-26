@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using SSSClientWeb.Models;
+using SSSClientTickets.Models;
 
-namespace SSSClientWeb.Pages.Tickets
+namespace SSSClientTickets.Pages.Tickets
 {
     public class EditModel : PageModel
     {
