@@ -155,6 +155,14 @@ public partial class SssclientContext : DbContext
             entity.ToTable("TicketStatus");
 
             entity.Property(e => e.Status).HasMaxLength(20);
+
+            // Seed initial ticket statuses
+            entity.HasData(
+                new TicketStatus { StatusRec = 1, Status = "Open" },
+                new TicketStatus { StatusRec = 2, Status = "In Progress" },
+                new TicketStatus { StatusRec = 3, Status = "Waiting for Client" },
+                new TicketStatus { StatusRec = 4, Status = "Resolved" }
+            );
         });
 
         modelBuilder.Entity<TicketTime>(entity =>
