@@ -80,63 +80,60 @@
                 {
                     <p class="mb-0" style="white-space: pre-wrap;">@Model.Ticket.Resolution</p>
                 }
-            </div>
+            </div> 
         </div>
 
         <!-- Attachments -->
-        @if (Model.Ticket.TicketAttachments.Any())
-        {
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <strong>Attachments</strong>
-                    <a asp-page="Edit" asp-route-id="@Model.Ticket.TicketRec" class="btn btn-sm btn-outline-primary">Add More</a>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3" id="attachmentsContainer">
-                        @foreach (var attachment in Model.Ticket.TicketAttachments.OrderByDescending(a => a.UploadedDate))
-                        {
-                            <div class="col-md-6 col-lg-4">
-                                <div class="attachment-card h-100">
-                                    @if (attachment.IsImage)
-                                    {
-                                        <div class="attachment-thumbnail position-relative" onclick="openFileViewer('@Model.Ticket.TicketRec', '@attachment.AttachmentRec', '@attachment.FileName', '@attachment.FileExtension')" style="cursor: pointer;">
-                                            <img src="/api/attachments/file/@Model.Ticket.TicketRec/@attachment.AttachmentRec" 
-                                                 alt="@attachment.FileName">
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="attachment-file-icon" onclick="openFileViewer('@Model.Ticket.TicketRec', '@attachment.AttachmentRec', '@attachment.FileName', '@attachment.FileExtension')" style="cursor: pointer;">
-                                            @{
-                                                var icon = attachment.FileExtension.ToLower() switch
-                                                {
-                                                    ".pdf" => "📄",
-                                                    ".doc" or ".docx" => "📝",
-                                                    ".xls" or ".xlsx" => "📊",
-                                                    ".csv" => "📋",
-                                                    ".txt" => "📃",
-                                                    _ => "📎"
-                                                };
-                                            }
-                                            <div style="font-size: 48px; text-align: center; padding: 20px;">@Html.Raw(icon)</div>
-                                        </div>
-                                    }
-                                    <div class="attachment-info">
-                                        <p class="attachment-name">@attachment.FileName</p>
-                                        <small class="text-muted">@attachment.UploadedDate.ToString("MM/dd/yyyy hh:mm tt")</small>
-                                        <div class="mt-2">
-                                            <a href="/api/attachments/file/@Model.Ticket.TicketRec/@attachment.AttachmentRec" 
-                                               download="@attachment.FileName" 
-                                               class="btn btn-sm btn-outline-primary me-1">Download</a>
-                                        </div>
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Attachments</strong>
+                <a asp-page="Edit" asp-route-id="@Model.Ticket.TicketRec" class="btn btn-sm btn-outline-primary">Manage</a>
+            </div>
+            <div class="card-body">
+                <div class="row g-3" id="attachmentsContainer">
+                    @foreach (var attachment in Model.Ticket.TicketAttachments.OrderByDescending(a => a.UploadedDate))
+                    {
+                        <div class="col-md-6 col-lg-4">
+                            <div class="attachment-card h-100">
+                                @if (attachment.IsImage)
+                                {
+                                    <div class="attachment-thumbnail position-relative" onclick="openFileViewer('@Model.Ticket.TicketRec', '@attachment.AttachmentRec', '@attachment.FileName', '@attachment.FileExtension')" style="cursor: pointer;">
+                                        <img src="/api/attachments/file/@Model.Ticket.TicketRec/@attachment.AttachmentRec" 
+                                            alt="@attachment.FileName">
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="attachment-file-icon" onclick="openFileViewer('@Model.Ticket.TicketRec', '@attachment.AttachmentRec', '@attachment.FileName', '@attachment.FileExtension')" style="cursor: pointer;">
+                                        @{
+                                            var icon = attachment.FileExtension.ToLower() switch
+                                            {
+                                                ".pdf" => "📄",
+                                                ".doc" or ".docx" => "📝",
+                                                ".xls" or ".xlsx" => "📊",
+                                                ".csv" => "📋",
+                                                ".txt" => "📃",
+                                                _ => "📎"
+                                            };
+                                        }
+                                        <div style="font-size: 48px; text-align: center; padding: 20px;">@Html.Raw(icon)</div>
+                                    </div>
+                                }
+                                <div class="attachment-info">
+                                    <p class="attachment-name">@attachment.FileName</p>
+                                    <small class="text-muted">@attachment.UploadedDate.ToString("MM/dd/yyyy hh:mm tt")</small>
+                                    <div class="mt-2">
+                                        <a href="/api/attachments/file/@Model.Ticket.TicketRec/@attachment.AttachmentRec" 
+                                        download="@attachment.FileName" 
+                                        class="btn btn-sm btn-outline-primary me-1">Download</a>
                                     </div>
                                 </div>
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
             </div>
-        }
+        </div>
 
         <!-- Time Log -->
         <div class="card mb-4">
