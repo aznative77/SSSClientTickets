@@ -83,6 +83,61 @@
             </div>
         </div>
 
+        <!-- Attachments -->
+        @if (Model.Ticket.TicketAttachments.Any())
+        {
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>Attachments</strong>
+                    <a asp-page="Edit" asp-route-id="@Model.Ticket.TicketRec" class="btn btn-sm btn-outline-primary">Add More</a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3" id="attachmentsContainer">
+                        @foreach (var attachment in Model.Ticket.TicketAttachments.OrderByDescending(a => a.UploadedDate))
+                        {
+                            <div class="col-md-6 col-lg-4">
+                                <div class="attachment-card h-100">
+                                    @if (attachment.IsImage)
+                                    {
+                                        <div class="attachment-thumbnail position-relative" onclick="openFileViewer('@Model.Ticket.TicketRec', '@attachment.AttachmentRec', '@attachment.FileName', '@attachment.FileExtension')" style="cursor: pointer;">
+                                            <img src="/api/attachments/file/@Model.Ticket.TicketRec/@attachment.AttachmentRec" 
+                                                 alt="@attachment.FileName">
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="attachment-file-icon" onclick="openFileViewer('@Model.Ticket.TicketRec', '@attachment.AttachmentRec', '@attachment.FileName', '@attachment.FileExtension')" style="cursor: pointer;">
+                                            @{
+                                                var icon = attachment.FileExtension.ToLower() switch
+                                                {
+                                                    ".pdf" => "📄",
+                                                    ".doc" or ".docx" => "📝",
+                                                    ".xls" or ".xlsx" => "📊",
+                                                    ".csv" => "📋",
+                                                    ".txt" => "📃",
+                                                    _ => "📎"
+                                                };
+                                            }
+                                            <div style="font-size: 48px; text-align: center; padding: 20px;">@Html.Raw(icon)</div>
+                                        </div>
+                                    }
+                                    <div class="attachment-info">
+                                        <p class="attachment-name">@attachment.FileName</p>
+                                        <small class="text-muted">@attachment.UploadedDate.ToString("MM/dd/yyyy hh:mm tt")</small>
+                                        <div class="mt-2">
+                                            <a href="/api/attachments/file/@Model.Ticket.TicketRec/@attachment.AttachmentRec" 
+                                               download="@attachment.FileName" 
+                                               class="btn btn-sm btn-outline-primary me-1">Download</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
         <!-- Time Log -->
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -147,3 +202,491 @@
 
     </div>
 </div>
+
+<!-- File Viewer Modal -->
+<div class="modal fade" id="fileViewerModal" tabindex="-1" aria-labelledby="fileViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fileViewerModalLabel">File Viewer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="fileViewerBody" style="min-height: 400px; display: flex; align-items: center; justify-content: center;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <small id="fileName" class="text-muted me-auto"></small>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a id="viewerDownloadLink" href="" download class="btn btn-primary">Download</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .attachment-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background-color: #f9f9f9;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .attachment-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .attachment-thumbnail {
+        width: 100%;
+        height: 150px;
+        overflow: hidden;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .attachment-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .attachment-file-icon {
+        width: 100%;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f0f0f0;
+    }
+
+    .attachment-info {
+        padding: 12px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .attachment-name {
+        font-weight: 500;
+        margin-bottom: 4px;
+        word-break: break-word;
+        font-size: 14px;
+    }
+
+    #fileViewerBody {
+        background-color: #f8f9fa;
+        position: relative;
+    }
+
+    #fileViewerBody iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    #fileViewerBody img {
+        max-width: 100%;
+        max-height: 70vh;
+        object-fit: contain;
+    }
+
+    #fileViewerBody pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        max-height: 70vh;
+        overflow: auto;
+        font-size: 12px;
+        font-family: 'Courier New', monospace;
+    }
+
+    .office-viewer-message {
+        text-align: center;
+        padding: 20px;
+        background-color: #e8f4f8;
+        border-radius: 4px;
+    }
+
+    .office-viewer-message a {
+        margin-top: 10px;
+        display: inline-block;
+    }
+
+    #fileViewerBody table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    #fileViewerBody table th {
+        background-color: #e9ecef;
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #dee2e6;
+        font-weight: 600;
+    }
+
+    #fileViewerBody table td {
+        padding: 8px 10px;
+        border: 1px solid #dee2e6;
+        word-break: break-word;
+    }
+
+    #fileViewerBody table tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+
+    #fileViewerBody table tbody tr:hover {
+        background-color: #e9ecef;
+    }
+
+    .csv-table-wrapper {
+        overflow-x: auto;
+        max-height: 70vh;
+    }
+
+    /* Styling for DOCX content */
+    #fileViewerBody p {
+        margin-bottom: 10px;
+        line-height: 1.6;
+    }
+
+    #fileViewerBody h1, #fileViewerBody h2, #fileViewerBody h3 {
+        margin-top: 15px;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    #fileViewerBody ol, #fileViewerBody ul {
+        margin-left: 20px;
+        margin-bottom: 10px;
+    }
+
+    /* Styling for Excel tables */
+    #fileViewerBody table.sheet {
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    #fileViewerBody table.sheet tr {
+        border: 1px solid #bdd7ee;
+    }
+
+    #fileViewerBody table.sheet th {
+        background-color: #d9e2f3;
+        border: 1px solid #bdd7ee;
+        padding: 6px 8px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    #fileViewerBody table.sheet td {
+        border: 1px solid #bdd7ee;
+        padding: 6px 8px;
+        max-width: 300px;
+        word-break: break-word;
+    }
+</style>
+
+<script>
+    function openFileViewer(ticketRec, attachmentRec, fileName, fileExtension) {
+        const modal = new bootstrap.Modal(document.getElementById('fileViewerModal'));
+        const fileViewerBody = document.getElementById('fileViewerBody');
+        const fileNameEl = document.getElementById('fileName');
+        const downloadLink = document.getElementById('viewerDownloadLink');
+        const fileUrl = `/api/attachments/file/${ticketRec}/${attachmentRec}`;
+        
+        fileNameEl.textContent = fileName;
+        downloadLink.href = fileUrl;
+        downloadLink.download = fileName;
+
+        const ext = fileExtension.toLowerCase();
+
+        // Clear previous content
+        fileViewerBody.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+
+        // Handle different file types
+        if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'].includes(ext)) {
+            // Image viewer
+            setTimeout(() => {
+                fileViewerBody.innerHTML = `<img src="${fileUrl}" alt="${fileName}" style="max-width: 100%; max-height: 70vh; object-fit: contain;">`;
+            }, 100);
+        } 
+        else if (ext === '.pdf') {
+            // PDF viewer using iframe
+            setTimeout(() => {
+                fileViewerBody.innerHTML = `<iframe src="${fileUrl}#toolbar=0" style="width: 100%; height: 70vh;"></iframe>`;
+            }, 100);
+        }
+        else if (['.txt'].includes(ext)) {
+            // Text file viewer
+            fetch(fileUrl)
+                .then(response => response.text())
+                .then(data => {
+                    fileViewerBody.innerHTML = `<pre>${escapeHtml(data)}</pre>`;
+                })
+                .catch(error => {
+                    fileViewerBody.innerHTML = `<div class="alert alert-danger m-3">Error loading file: ${error.message}</div>`;
+                });
+        }
+        else if (ext === '.csv') {
+            // CSV file viewer - parse and display as table
+            fetch(fileUrl)
+                .then(response => response.text())
+                .then(data => {
+                    const table = parseCSVToTable(data);
+                    fileViewerBody.innerHTML = `<div class="csv-table-wrapper">${table}</div>`;
+                })
+                .catch(error => {
+                    fileViewerBody.innerHTML = `<div class="alert alert-danger m-3">Error loading file: ${error.message}</div>`;
+                });
+        }
+        else if (['.doc', '.docx', '.xls', '.xlsx'].includes(ext)) {
+            // Office documents - use client-side parsing
+            if (['.docx'].includes(ext)) {
+                // DOCX files using Mammoth.js
+                loadDocxFile(fileUrl);
+            } else if (['.xls', '.xlsx'].includes(ext)) {
+                // Excel files using SheetJS
+                loadExcelFile(fileUrl);
+            } else if (['.doc'].includes(ext)) {
+                // Old .doc format - limited support
+                fileViewerBody.innerHTML = `
+                    <div class="alert alert-info m-3">
+                        <p><strong>Legacy .doc format</strong></p>
+                        <p>Older Word documents have limited preview support.</p>
+                        <p>Please download to view in Microsoft Word.</p>
+                    </div>
+                `;
+            }
+        }
+        else {
+            // Unsupported file type
+            setTimeout(() => {
+                fileViewerBody.innerHTML = `
+                    <div class="alert alert-info m-3">
+                        <p><strong>Preview not available for this file type</strong></p>
+                        <p>File extension: <code>${fileExtension}</code></p>
+                        <p>Please download the file to view it.</p>
+                    </div>
+                `;
+            }, 100);
+        }
+
+        modal.show();
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function parseCSV(csv) {
+        const rows = [];
+        let currentRow = [];
+        let currentField = '';
+        let insideQuotes = false;
+
+        for (let i = 0; i < csv.length; i++) {
+            const char = csv[i];
+            const nextChar = csv[i + 1];
+
+            if (char === '"') {
+                if (insideQuotes && nextChar === '"') {
+                    // Escaped quote
+                    currentField += '"';
+                    i++;
+                } else {
+                    // Toggle quote state
+                    insideQuotes = !insideQuotes;
+                }
+            } else if (char === ',' && !insideQuotes) {
+                // End of field
+                currentRow.push(currentField.trim());
+                currentField = '';
+            } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+                // End of row
+                if (currentField || currentRow.length > 0) {
+                    currentRow.push(currentField.trim());
+                    rows.push(currentRow);
+                    currentRow = [];
+                    currentField = '';
+                }
+                // Skip \r\n combinations
+                if (char === '\r' && nextChar === '\n') {
+                    i++;
+                }
+            } else {
+                currentField += char;
+            }
+        }
+
+        // Add last field and row
+        if (currentField || currentRow.length > 0) {
+            currentRow.push(currentField.trim());
+            rows.push(currentRow);
+        }
+
+        return rows;
+    }
+
+    function parseCSVToTable(csv) {
+        const rows = parseCSV(csv);
+        if (rows.length === 0) {
+            return '<div class="alert alert-warning m-3">CSV file is empty</div>';
+        }
+
+        let html = '<table>';
+
+        // Add header row
+        html += '<thead><tr>';
+        rows[0].forEach(cell => {
+            html += `<th>${escapeHtml(cell)}</th>`;
+        });
+        html += '</tr></thead>';
+
+        // Add data rows
+        html += '<tbody>';
+        for (let i = 1; i < rows.length; i++) {
+            html += '<tr>';
+            rows[i].forEach(cell => {
+                html += `<td>${escapeHtml(cell)}</td>`;
+            });
+            html += '</tr>';
+        }
+        html += '</tbody>';
+
+        html += '</table>';
+        return html;
+    }
+
+    function loadDocxFile(fileUrl) {
+        const fileViewerBody = document.getElementById('fileViewerBody');
+        
+        // Load Mammoth.js library if not already loaded
+        if (typeof mammoth === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js';
+            script.onload = () => {
+                loadDocxContent(fileUrl);
+            };
+            script.onerror = () => {
+                fileViewerBody.innerHTML = `<div class="alert alert-danger m-3">Error loading document viewer library</div>`;
+            };
+            document.head.appendChild(script);
+        } else {
+            loadDocxContent(fileUrl);
+        }
+    }
+
+    function loadDocxContent(fileUrl) {
+        const fileViewerBody = document.getElementById('fileViewerBody');
+        fetch(fileUrl)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+                mammoth.convertToHtml({arrayBuffer: arrayBuffer})
+                    .then(result => {
+                        fileViewerBody.innerHTML = `
+                            <div style="padding: 20px; max-height: 70vh; overflow: auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                                ${result.value}
+                            </div>
+                        `;
+                    })
+                    .catch(error => {
+                        fileViewerBody.innerHTML = `<div class="alert alert-danger m-3">Error reading document: ${error.message}</div>`;
+                    });
+            })
+            .catch(error => {
+                fileViewerBody.innerHTML = `<div class="alert alert-danger m-3">Error loading file: ${error.message}</div>`;
+            });
+    }
+
+    function loadExcelFile(fileUrl) {
+        const fileViewerBody = document.getElementById('fileViewerBody');
+        
+        // Load SheetJS library if not already loaded
+        if (typeof XLSX === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+            script.onload = () => {
+                loadExcelContent(fileUrl);
+            };
+            script.onerror = () => {
+                fileViewerBody.innerHTML = `<div class="alert alert-danger m-3">Error loading spreadsheet viewer library</div>`;
+            };
+            document.head.appendChild(script);
+        } else {
+            loadExcelContent(fileUrl);
+        }
+    }
+
+    function loadExcelContent(fileUrl) {
+        const fileViewerBody = document.getElementById('fileViewerBody');
+        fetch(fileUrl)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+                const workbook = XLSX.read(arrayBuffer, {type: 'array'});
+                let html = '<div style="padding: 20px; max-height: 70vh; overflow: auto;">';
+                
+                // Add sheet tabs
+                if (workbook.SheetNames.length > 1) {
+                    html += '<div style="margin-bottom: 15px; border-bottom: 2px solid #dee2e6;">';
+                    workbook.SheetNames.forEach((sheetName, index) => {
+                        html += `<button onclick="switchExcelSheet(this, event, ${index})" style="padding: 8px 12px; margin-right: 5px; border: 1px solid #dee2e6; background-color: ${index === 0 ? '#007bff' : '#f8f9fa'}; color: ${index === 0 ? 'white' : 'black'}; cursor: pointer; border-radius: 3px;">${escapeHtml(sheetName)}</button>`;
+                    });
+                    html += '</div>';
+                }
+                
+                // Add first sheet content
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                html += XLSX.utils.sheet_to_html(firstSheet, {editable: false});
+                
+                html += '</div>';
+                fileViewerBody.innerHTML = html;
+                
+                // Store workbook for sheet switching
+                window.currentWorkbook = workbook;
+            })
+            .catch(error => {
+                fileViewerBody.innerHTML = `<div class="alert alert-danger m-3">Error reading spreadsheet: ${error.message}</div>`;
+            });
+    }
+
+    function switchExcelSheet(button, event, sheetIndex) {
+        event.preventDefault();
+        if (!window.currentWorkbook) return;
+        
+        const fileViewerBody = document.getElementById('fileViewerBody');
+        const workbook = window.currentWorkbook;
+        const sheetName = workbook.SheetNames[sheetIndex];
+        const sheet = workbook.Sheets[sheetName];
+        
+        // Update button styles
+        document.querySelectorAll('button[onclick*="switchExcelSheet"]').forEach((btn, idx) => {
+            btn.style.backgroundColor = idx === sheetIndex ? '#007bff' : '#f8f9fa';
+            btn.style.color = idx === sheetIndex ? 'white' : 'black';
+        });
+        
+        // Update sheet content
+        const sheetsHtml = fileViewerBody.innerHTML;
+        const tabsEnd = sheetsHtml.indexOf('</div>') + 6;
+        const newContent = XLSX.utils.sheet_to_html(sheet, {editable: false});
+        fileViewerBody.innerHTML = sheetsHtml.substring(0, tabsEnd) + newContent;
+    }
+</script>
+

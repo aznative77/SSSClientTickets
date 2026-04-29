@@ -14,6 +14,11 @@ appsettings.*.json
 !appsettings.Example.json
 *.env
 
+# User-uploaded files (security and database-specific)
+# These should not be committed to git as they contain user data
+SSSClientTickets/wwwroot/uploads/
+!SSSClientTickets/wwwroot/uploads/.gitkeep
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

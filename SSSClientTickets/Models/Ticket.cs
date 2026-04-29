@@ -32,4 +32,6 @@ public partial class Ticket
     public virtual TicketStatus StatusRecNavigation { get; set; } = null!;
 
     public virtual ICollection<TicketTime> TicketTimes { get; set; } = new List<TicketTime>();
+
+    public virtual ICollection<TicketAttachment> TicketAttachments { get; set; } = new List<TicketAttachment>();
 }

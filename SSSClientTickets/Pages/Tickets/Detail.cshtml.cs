@@ -24,6 +24,7 @@ namespace SSSClientTickets.Pages.Tickets
                 .Include(t => t.StatusRecNavigation)
                 .Include(t => t.SiteRecNavigation)
                 .Include(t => t.TicketTimes)
+                .Include(t => t.TicketAttachments)
                 .FirstOrDefaultAsync(t => t.TicketRec == id);
 
             if (ticket == null)

@@ -23,6 +23,8 @@ public partial class SssclientContext : DbContext
 
     public virtual DbSet<Ticket> Tickets { get; set; }
 
+    public virtual DbSet<TicketAttachment> TicketAttachments { get; set; }
+
     public virtual DbSet<TicketStatus> TicketStatuses { get; set; }
 
     public virtual DbSet<TicketTime> TicketTimes { get; set; }
@@ -155,14 +157,6 @@ public partial class SssclientContext : DbContext
             entity.ToTable("TicketStatus");
 
             entity.Property(e => e.Status).HasMaxLength(20);
-
-            // Seed initial ticket statuses
-            entity.HasData(
-                new TicketStatus { StatusRec = 1, Status = "Open" },
-                new TicketStatus { StatusRec = 2, Status = "In Progress" },
-                new TicketStatus { StatusRec = 3, Status = "Waiting for Client" },
-                new TicketStatus { StatusRec = 4, Status = "Resolved" }
-            );
         });
 
         modelBuilder.Entity<TicketTime>(entity =>
@@ -200,6 +194,21 @@ public partial class SssclientContext : DbContext
             entity
                 .HasNoKey()
                 .ToView("vw_TicketTime");
+        });
+
+        modelBuilder.Entity<TicketAttachment>(entity =>
+        {
+            entity.HasKey(e => e.AttachmentRec);
+
+            entity.ToTable("TicketAttachment");
+
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.FileExtension).HasMaxLength(10);
+
+            entity.HasOne(d => d.TicketRecNavigation).WithMany(p => p.TicketAttachments)
+                .HasForeignKey(d => d.TicketRec)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TicketAttachment_Ticket");
         });
 
         OnModelCreatingPartial(modelBuilder);

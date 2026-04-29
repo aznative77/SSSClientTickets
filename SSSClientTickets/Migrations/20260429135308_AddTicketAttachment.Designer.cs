@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SSSClientTickets.Models;
 
@@ -11,9 +12,11 @@ using SSSClientTickets.Models;
 namespace SSSClientTickets.Migrations
 {
     [DbContext(typeof(SssclientContext))]
-    partial class SssclientContextModelSnapshot : ModelSnapshot
+    [Migration("20260429135308_AddTicketAttachment")]
+    partial class AddTicketAttachment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
