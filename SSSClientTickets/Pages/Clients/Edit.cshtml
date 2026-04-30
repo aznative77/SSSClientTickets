@@ -22,6 +22,15 @@
             </div>
 
             <div class="mb-3">
+                <label asp-for="Client.HourlyRate" class="form-label">Default Hourly Rate</label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input asp-for="Client.HourlyRate" class="form-control" type="number" min="0" step="0.01" />
+                </div>
+                <span asp-validation-for="Client.HourlyRate" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
                 <label asp-for="Client.ClientAddr1" class="form-label">Address Line 1</label>
                 <input asp-for="Client.ClientAddr1" class="form-control" />
                 <span asp-validation-for="Client.ClientAddr1" class="text-danger"></span>

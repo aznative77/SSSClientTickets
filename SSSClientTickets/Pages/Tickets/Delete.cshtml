@@ -25,6 +25,9 @@
             <dt class="col-sm-4">Status</dt>
             <dd class="col-sm-8">@Model.Ticket.StatusRecNavigation?.Status</dd>
 
+            <dt class="col-sm-4">Hourly Rate</dt>
+            <dd class="col-sm-8">@Model.Ticket.HourlyRate.ToString("C")</dd>
+
             <dt class="col-sm-4">Date Logged</dt>
             <dd class="col-sm-8">@Model.Ticket.DateLogged?.ToString("MM/dd/yyyy")</dd>
 

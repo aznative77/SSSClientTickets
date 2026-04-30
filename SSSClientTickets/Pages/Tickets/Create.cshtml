@@ -12,6 +12,7 @@
 <div class="row">
     <div class="col-md-7">
         <form method="post">
+            <input type="hidden" asp-for="HourlyRateWasChanged" id="hourlyRateWasChanged" />
             <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
             <div class="row mb-3">
@@ -47,6 +48,15 @@
                     </button>
                 </div>
                 <span asp-validation-for="Ticket.SiteRec" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Ticket.HourlyRate" class="form-label">Hourly Rate</label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input asp-for="Ticket.HourlyRate" class="form-control" type="number" min="0" step="0.01" id="hourlyRateInput" />
+                </div>
+                <span asp-validation-for="Ticket.HourlyRate" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
@@ -335,8 +345,31 @@
             $('#clientSelect').on('change', function() {
                 const selectedClient = $(this).val();
                 $('#siteClient').val(selectedClient);
+                refreshHourlyRate(selectedClient);
+            });
+
+            $('#hourlyRateInput').on('input', function() {
+                $('#hourlyRateWasChanged').val('true');
             });
         });
+
+        function refreshHourlyRate(clientId) {
+            if (!clientId) {
+                $('#hourlyRateInput').val('0.00');
+                $('#hourlyRateWasChanged').val('false');
+                return;
+            }
+
+            $.ajax({
+                url: `/api/tickets/client-hourly-rate?clientId=${clientId}`,
+                type: 'GET',
+                success: function(response) {
+                    const rate = Number(response.hourlyRate || 0);
+                    $('#hourlyRateInput').val(rate.toFixed(2));
+                    $('#hourlyRateWasChanged').val('false');
+                }
+            });
+        }
         
         function refreshCustomerDropdown(newCustomerRec, newCustomerName) {
             const option = new Option(newCustomerName, newCustomerRec, false, true);

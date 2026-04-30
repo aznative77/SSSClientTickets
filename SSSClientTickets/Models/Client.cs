@@ -19,6 +19,8 @@ public partial class Client
 
     public string? ClientZip { get; set; }
 
+    public decimal HourlyRate { get; set; }
+
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
 
     public virtual ICollection<Site> Sites { get; set; } = new List<Site>();

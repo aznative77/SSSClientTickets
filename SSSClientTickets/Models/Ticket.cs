@@ -23,6 +23,8 @@ public partial class Ticket
 
     public int? SiteRec { get; set; }
 
+    public decimal HourlyRate { get; set; }
+
     public virtual Client ClientRecNavigation { get; set; } = null!;
 
     public virtual Customer CustomerRecNavigation { get; set; } = null!;

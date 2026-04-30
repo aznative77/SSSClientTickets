@@ -61,6 +61,9 @@ public partial class SssclientContext : DbContext
                 .HasMaxLength(10)
                 .IsFixedLength()
                 .HasColumnName("Client_Zip");
+            entity.Property(e => e.HourlyRate)
+                .HasColumnType("decimal(10, 2)")
+                .HasDefaultValue(0m);
         });
 
         modelBuilder.Entity<Customer>(entity =>
@@ -128,6 +131,9 @@ public partial class SssclientContext : DbContext
 
             entity.Property(e => e.DateLogged).HasColumnType("datetime");
             entity.Property(e => e.DateResolved).HasColumnType("datetime");
+            entity.Property(e => e.HourlyRate)
+                .HasColumnType("decimal(10, 2)")
+                .HasDefaultValue(0m);
             entity.Property(e => e.StatusRec).HasDefaultValue(1);
 
             entity.HasOne(d => d.ClientRecNavigation).WithMany(p => p.Tickets)
@@ -157,6 +163,12 @@ public partial class SssclientContext : DbContext
             entity.ToTable("TicketStatus");
 
             entity.Property(e => e.Status).HasMaxLength(20);
+
+            entity.HasData(
+                new TicketStatus { StatusRec = 1, Status = "Open" },
+                new TicketStatus { StatusRec = 2, Status = "In Progress" },
+                new TicketStatus { StatusRec = 3, Status = "Waiting for Client" },
+                new TicketStatus { StatusRec = 4, Status = "Resolved" });
         });
 
         modelBuilder.Entity<TicketTime>(entity =>

@@ -26,5 +26,19 @@ namespace SSSClientTickets.Controllers
 
             return Ok(customers);
         }
+
+        [HttpGet("client-hourly-rate")]
+        public async Task<ActionResult<object>> GetClientHourlyRate(int clientId)
+        {
+            var client = await _context.Clients
+                .Where(c => c.ClientRec == clientId)
+                .Select(c => new { c.HourlyRate })
+                .FirstOrDefaultAsync();
+
+            if (client == null)
+                return NotFound();
+
+            return Ok(new { hourlyRate = client.HourlyRate });
+        }
     }
 }

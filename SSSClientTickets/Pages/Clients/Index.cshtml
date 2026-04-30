@@ -23,6 +23,7 @@ else
                 <th>City</th>
                 <th>State</th>
                 <th>Zip</th>
+                <th>Default Rate</th>
                 <th></th>
             </tr>
         </thead>
@@ -41,6 +42,7 @@ else
                     <td>@client.ClientCity</td>
                     <td>@client.ClientState</td>
                     <td>@client.ClientZip</td>
+                    <td>@client.HourlyRate.ToString("C")</td>
                     <td class="text-end">
                         <a asp-page="Edit" asp-route-id="@client.ClientRec" class="btn btn-sm btn-outline-primary">Edit</a>
                         <a asp-page="Delete" asp-route-id="@client.ClientRec" class="btn btn-sm btn-outline-danger">Delete</a>

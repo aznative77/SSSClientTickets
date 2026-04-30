@@ -113,6 +113,7 @@ else
                 <th>Client</th>
                 <th>Customer</th>
                 <th>Issue</th>
+                <th>Rate</th>
                 <th>Status</th>
                 <th>Date Logged</th>
                 <th></th>
@@ -135,6 +136,7 @@ else
                             @ticket.Issue
                         }
                     </td>
+                    <td>@ticket.HourlyRate.ToString("C")</td>
                     <td>
                         @{
                             var badgeClass = ticket.StatusRecNavigation?.Status switch
@@ -279,4 +281,3 @@ else
         clientSelect.addEventListener('change', loadCustomersByClient);
     });
 </script>
-

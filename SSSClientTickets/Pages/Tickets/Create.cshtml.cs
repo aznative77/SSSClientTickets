@@ -18,6 +18,9 @@ namespace SSSClientTickets.Pages.Tickets
         [BindProperty]
         public Ticket Ticket { get; set; } = new Ticket();
 
+        [BindProperty]
+        public bool HourlyRateWasChanged { get; set; }
+
         public SelectList ClientList { get; set; } = default!;
         public SelectList CustomerList { get; set; } = default!;
         public SelectList StatusList { get; set; } = default!;
@@ -28,6 +31,7 @@ namespace SSSClientTickets.Pages.Tickets
             await PopulateDropdownsAsync();
             Ticket.DateLogged = DateTime.Today;
             Ticket.StatusRec = 1; // Default to Open
+            HourlyRateWasChanged = false;
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -40,6 +44,14 @@ namespace SSSClientTickets.Pages.Tickets
             {
                 await PopulateDropdownsAsync();
                 return Page();
+            }
+
+            if (!HourlyRateWasChanged)
+            {
+                Ticket.HourlyRate = await _context.Clients
+                    .Where(c => c.ClientRec == Ticket.ClientRec)
+                    .Select(c => c.HourlyRate)
+                    .FirstOrDefaultAsync();
             }
 
             _context.Tickets.Add(Ticket);

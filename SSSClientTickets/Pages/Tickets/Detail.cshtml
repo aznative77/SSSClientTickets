@@ -51,6 +51,9 @@
                     <dt class="col-sm-3">Cell Phone</dt>
                     <dd class="col-sm-9">@Model.Ticket.CustomerRecNavigation?.Mobile</dd>
 
+                    <dt class="col-sm-3">Hourly Rate</dt>
+                    <dd class="col-sm-9">@Model.Ticket.HourlyRate.ToString("C")</dd>
+
                     <dt class="col-sm-3">Date Logged</dt>
                     <dd class="col-sm-9">@Model.Ticket.DateLogged?.ToString("MM/dd/yyyy")</dd>
 
@@ -686,4 +689,3 @@
         fileViewerBody.innerHTML = sheetsHtml.substring(0, tabsEnd) + newContent;
     }
 </script>
-
