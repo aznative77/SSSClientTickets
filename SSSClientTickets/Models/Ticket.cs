@@ -20,6 +20,8 @@ public partial class Ticket
     public DateTime? DateResolved { get; set; }
 
     public int StatusRec { get; set; }
+    
+    public bool Billed { get; set; }
 
     public int? SiteRec { get; set; }
 
