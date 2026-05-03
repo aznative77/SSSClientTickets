@@ -170,10 +170,8 @@ namespace SSSClientTickets.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TicketRec"));
 
-                    b.Property<bool>("Billed")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                    b.Property<DateTime?>("DateBilled")
+                        .HasColumnType("datetime");
 
                     b.Property<int>("ClientRec")
                         .HasColumnType("int");

@@ -75,10 +75,10 @@
                 </div>
             </div>
 
-            <div class="form-check mb-3">
-                <input asp-for="Ticket.Billed" class="form-check-input" />
-                <label asp-for="Ticket.Billed" class="form-check-label">Billed</label>
-                <span asp-validation-for="Ticket.Billed" class="text-danger"></span>
+            <div class="mb-3">
+                <label asp-for="Ticket.DateBilled" class="form-label">Date Billed</label>
+                <input asp-for="Ticket.DateBilled" class="form-control" type="date" />
+                <span asp-validation-for="Ticket.DateBilled" class="text-danger"></span>
             </div>
 
             <!-- File Upload Section -->

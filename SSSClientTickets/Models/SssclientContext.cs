@@ -135,10 +135,7 @@ public partial class SssclientContext : DbContext
                 .HasColumnType("decimal(10, 2)")
                 .HasDefaultValue(0m);
             entity.Property(e => e.StatusRec).HasDefaultValue(1);
-            entity.Property(e => e.Billed)
-                .HasColumnType("bit")
-                .HasDefaultValue(false)
-                .ValueGeneratedOnAdd();
+            entity.Property(e => e.DateBilled).HasColumnType("datetime");
 
             entity.HasOne(d => d.ClientRecNavigation).WithMany(p => p.Tickets)
                 .HasForeignKey(d => d.ClientRec)

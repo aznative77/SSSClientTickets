@@ -34,13 +34,13 @@ namespace SSSClientTickets.Pages.Tickets
             return Page();
         }
 
-        public async Task<IActionResult> OnPostToggleBilledAsync(int id, bool billed)
+        public async Task<IActionResult> OnPostUpdateDateBilledAsync(int id, DateTime? dateBilled)
         {
             var ticket = await _context.Tickets.FindAsync(id);
             if (ticket == null)
                 return NotFound();
 
-            ticket.Billed = billed;
+            ticket.DateBilled = dateBilled;
             await _context.SaveChangesAsync();
 
             return RedirectToPage(new { id });

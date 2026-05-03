@@ -39,6 +39,10 @@ button.accept-policy {
   line-height: inherit;
 }
 
+.ticket-date-billed {
+    width: 9.5rem;
+}
+
 .footer {
   position: absolute;
   bottom: 0;

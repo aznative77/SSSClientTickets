@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
+using System;
+
 #nullable disable
 
 namespace SSSClientTickets.Migrations
@@ -10,19 +12,18 @@ namespace SSSClientTickets.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "Billed",
+            migrationBuilder.AddColumn<DateTime>(
+                name: "DateBilled",
                 table: "Ticket",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+                type: "datetime",
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Billed",
+                name: "DateBilled",
                 table: "Ticket");
         }
     }
