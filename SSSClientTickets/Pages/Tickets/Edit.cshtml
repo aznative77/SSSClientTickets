@@ -75,6 +75,12 @@
                 </div>
             </div>
 
+            <div class="form-check mb-3">
+                <input asp-for="Ticket.Billed" class="form-check-input" />
+                <label asp-for="Ticket.Billed" class="form-check-label">Billed</label>
+                <span asp-validation-for="Ticket.Billed" class="text-danger"></span>
+            </div>
+
             <!-- File Upload Section -->
             <div class="card mb-3">
                 <div class="card-header">

@@ -33,5 +33,17 @@ namespace SSSClientTickets.Pages.Tickets
             Ticket = ticket;
             return Page();
         }
+
+        public async Task<IActionResult> OnPostToggleBilledAsync(int id, bool billed)
+        {
+            var ticket = await _context.Tickets.FindAsync(id);
+            if (ticket == null)
+                return NotFound();
+
+            ticket.Billed = billed;
+            await _context.SaveChangesAsync();
+
+            return RedirectToPage(new { id });
+        }
     }
 }
