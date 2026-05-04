@@ -72,7 +72,7 @@
                 <input type="text" class="form-control" id="FilterIssueSearch" name="FilterIssueSearch" placeholder="Search issue..." asp-for="FilterIssueSearch">
             </div>
 
-            <fieldset class="col-md-6 date-filter-fieldset">
+            <fieldset class="col-md-4 date-filter-fieldset">
                 <legend class="form-label fs-6">Date Logged</legend>
                 <div class="row g-2">
                     <div class="col-md-6">
@@ -87,7 +87,7 @@
                 </div>
             </fieldset>
 
-            <fieldset class="col-md-6 date-filter-fieldset">
+            <fieldset class="col-md-4 date-filter-fieldset">
                 <legend class="form-label fs-6">Date Resolved</legend>
                 <div class="row g-2">
                     <div class="col-md-6">
@@ -98,6 +98,21 @@
                     <div class="col-md-6">
                         <label for="FilterDateResolvedTo" class="form-label">To</label>
                         <input type="date" class="form-control" id="FilterDateResolvedTo" name="FilterDateResolvedTo" asp-for="FilterDateResolvedTo">
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="col-md-4 date-filter-fieldset">
+                <legend class="form-label fs-6">Date Billed</legend>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label for="FilterDateBilledFrom" class="form-label">From</label>
+                        <input type="date" class="form-control" id="FilterDateBilledFrom" name="FilterDateBilledFrom" asp-for="FilterDateBilledFrom">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="FilterDateBilledTo" class="form-label">To</label>
+                        <input type="date" class="form-control" id="FilterDateBilledTo" name="FilterDateBilledTo" asp-for="FilterDateBilledTo">
                     </div>
                 </div>
             </fieldset>
