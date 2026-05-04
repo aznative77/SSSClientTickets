@@ -72,25 +72,35 @@
                 <input type="text" class="form-control" id="FilterIssueSearch" name="FilterIssueSearch" placeholder="Search issue..." asp-for="FilterIssueSearch">
             </div>
 
-            <div class="col-md-3">
-                <label for="FilterDateLoggedFrom" class="form-label">Date Logged From</label>
-                <input type="date" class="form-control" id="FilterDateLoggedFrom" name="FilterDateLoggedFrom" asp-for="FilterDateLoggedFrom">
-            </div>
+            <fieldset class="col-md-6 date-filter-fieldset">
+                <legend class="form-label fs-6">Date Logged</legend>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label for="FilterDateLoggedFrom" class="form-label">From</label>
+                        <input type="date" class="form-control" id="FilterDateLoggedFrom" name="FilterDateLoggedFrom" asp-for="FilterDateLoggedFrom">
+                    </div>
 
-            <div class="col-md-3">
-                <label for="FilterDateLoggedTo" class="form-label">Date Logged To</label>
-                <input type="date" class="form-control" id="FilterDateLoggedTo" name="FilterDateLoggedTo" asp-for="FilterDateLoggedTo">
-            </div>
+                    <div class="col-md-6">
+                        <label for="FilterDateLoggedTo" class="form-label">To</label>
+                        <input type="date" class="form-control" id="FilterDateLoggedTo" name="FilterDateLoggedTo" asp-for="FilterDateLoggedTo">
+                    </div>
+                </div>
+            </fieldset>
 
-            <div class="col-md-3">
-                <label for="FilterDateResolvedFrom" class="form-label">Date Resolved From</label>
-                <input type="date" class="form-control" id="FilterDateResolvedFrom" name="FilterDateResolvedFrom" asp-for="FilterDateResolvedFrom">
-            </div>
+            <fieldset class="col-md-6 date-filter-fieldset">
+                <legend class="form-label fs-6">Date Resolved</legend>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label for="FilterDateResolvedFrom" class="form-label">From</label>
+                        <input type="date" class="form-control" id="FilterDateResolvedFrom" name="FilterDateResolvedFrom" asp-for="FilterDateResolvedFrom">
+                    </div>
 
-            <div class="col-md-3">
-                <label for="FilterDateResolvedTo" class="form-label">Date Resolved To</label>
-                <input type="date" class="form-control" id="FilterDateResolvedTo" name="FilterDateResolvedTo" asp-for="FilterDateResolvedTo">
-            </div>
+                    <div class="col-md-6">
+                        <label for="FilterDateResolvedTo" class="form-label">To</label>
+                        <input type="date" class="form-control" id="FilterDateResolvedTo" name="FilterDateResolvedTo" asp-for="FilterDateResolvedTo">
+                    </div>
+                </div>
+            </fieldset>
 
             <div class="col-12 d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Apply Filters</button>
@@ -161,17 +171,6 @@ else
         </tbody>
     </table>
 }
-
-<style>
-    .dropdown-menu {
-        max-height: 300px;
-        overflow-y: auto;
-    }
-    
-    .status-checkbox {
-        cursor: pointer;
-    }
-</style>
 
 <script>
     // Update button text to show selected count for Status
