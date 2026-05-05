@@ -12,10 +12,14 @@
 
 <!-- Filter Section -->
 <div class="card mb-4">
-    <div class="card-header bg-light">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Filter Tickets</h5>
+        <button class="btn btn-sm btn-outline-secondary filter-toggle-button" type="button" data-bs-toggle="collapse" data-bs-target="#filterTicketsBody" aria-expanded="false" aria-controls="filterTicketsBody">
+            Show filters
+        </button>
     </div>
-    <div class="card-body">
+    <div class="collapse" id="filterTicketsBody">
+        <div class="card-body">
         <form method="get" asp-page="Index" class="row g-3">
             <div class="col-md-3">
                 <label class="form-label">Status</label>
@@ -132,6 +136,7 @@
                 <a asp-page="Index" class="btn btn-secondary">Clear Filters</a>
             </div>
         </form>
+        </div>
     </div>
 </div>
 
@@ -303,5 +308,18 @@ else
         // Add listener to client select
         const clientSelect = document.getElementById('FilterClientRec');
         clientSelect.addEventListener('change', loadCustomersByClient);
+
+        const filterTicketsBody = document.getElementById('filterTicketsBody');
+        const filterToggleButton = document.querySelector('.filter-toggle-button');
+
+        filterTicketsBody.addEventListener('shown.bs.collapse', function() {
+            filterToggleButton.textContent = 'Hide filters';
+            filterToggleButton.setAttribute('aria-expanded', 'true');
+        });
+
+        filterTicketsBody.addEventListener('hidden.bs.collapse', function() {
+            filterToggleButton.textContent = 'Show filters';
+            filterToggleButton.setAttribute('aria-expanded', 'false');
+        });
     });
 </script>
