@@ -114,6 +114,16 @@
                         <label for="FilterDateBilledTo" class="form-label">To</label>
                         <input type="date" class="form-control" id="FilterDateBilledTo" name="FilterDateBilledTo" asp-for="FilterDateBilledTo">
                     </div>
+
+                    <div class="col-12">
+                        <div class="date-filter-or" aria-hidden="true">or</div>
+                        <div class="form-check not-yet-billed-filter">
+                            <input class="form-check-input" type="checkbox" id="FilterNotYetBilled" name="FilterNotYetBilled" value="true" asp-for="FilterNotYetBilled">
+                            <label class="form-check-label" for="FilterNotYetBilled">
+                                Not Yet Billed
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </fieldset>
 

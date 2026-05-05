@@ -49,6 +49,9 @@ namespace SSSClientTickets.Pages.Tickets
         public DateTime? FilterDateBilledTo { get; set; }
 
         [BindProperty(SupportsGet = true)]
+        public bool FilterNotYetBilled { get; set; }
+
+        [BindProperty(SupportsGet = true)]
         public string? FilterIssueSearch { get; set; }
 
         public async Task OnGetAsync()
@@ -125,16 +128,16 @@ namespace SSSClientTickets.Pages.Tickets
                 query = query.Where(t => t.DateResolved < nextDay);
             }
 
-            if (FilterDateBilledFrom.HasValue)
+            var hasDateBilledRangeFilter = FilterDateBilledFrom.HasValue || FilterDateBilledTo.HasValue;
+            if (hasDateBilledRangeFilter || FilterNotYetBilled)
             {
-                query = query.Where(t => t.DateBilled >= FilterDateBilledFrom);
-            }
-
-            if (FilterDateBilledTo.HasValue)
-            {
-                // Include the entire day
-                var nextDay = FilterDateBilledTo.Value.AddDays(1);
-                query = query.Where(t => t.DateBilled < nextDay);
+                // Keep Date Billed as one grouped filter: date range OR not billed.
+                var dateBilledBefore = FilterDateBilledTo?.AddDays(1);
+                query = query.Where(t =>
+                    (hasDateBilledRangeFilter
+                        && (!FilterDateBilledFrom.HasValue || t.DateBilled >= FilterDateBilledFrom)
+                        && (!dateBilledBefore.HasValue || t.DateBilled < dateBilledBefore))
+                    || (FilterNotYetBilled && t.DateBilled == null));
             }
 
             if (!string.IsNullOrWhiteSpace(FilterIssueSearch))
