@@ -188,8 +188,8 @@
                         fileInput.value = '';
                         loadAttachments();
                     } else {
-                        const response = JSON.parse(xhr.responseText);
-                        uploadStatus.innerHTML = `<div class="alert alert-danger">${response || 'Upload failed'}</div>`;
+                        const message = getUploadErrorMessage(xhr);
+                        uploadStatus.innerHTML = `<div class="alert alert-danger">${escapeHtml(message)}</div>`;
                     }
                     uploadProgress.classList.add('d-none');
                 });
@@ -206,6 +206,30 @@
                 uploadProgress.classList.add('d-none');
             }
         });
+
+        function getUploadErrorMessage(xhr) {
+            if (!xhr.responseText) {
+                return `Upload failed with status ${xhr.status}`;
+            }
+
+            try {
+                const response = JSON.parse(xhr.responseText);
+                return response.message || response.title || response.error || xhr.responseText;
+            } catch {
+                return xhr.responseText;
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
 
         function getFileIcon(fileName, isImage) {
             const ext = fileName.split('.').pop().toLowerCase();
@@ -244,7 +268,7 @@
                     <div class="attachment-item">
                         <div class="file-icon">${getFileIcon(att.fileName, att.isImage)}</div>
                         <div class="file-info">
-                            <div class="file-name">${att.fileName}</div>
+                            <div class="file-name">${escapeHtml(att.fileName)}</div>
                             <div class="file-meta">Uploaded: ${new Date(att.uploadedDate).toLocaleDateString()}</div>
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-danger delete-btn" onclick="deleteAttachment(${att.attachmentRec})">

@@ -10,46 +10,51 @@ namespace SSSClientTickets.Controllers
     {
         private readonly SssclientContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ILogger<AttachmentsController> _logger;
         private const long MaxFileSize = 50 * 1024 * 1024; // 50 MB
         private static readonly string[] ImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp" };
         private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt", ".csv" };
 
-        public AttachmentsController(SssclientContext context, IWebHostEnvironment webHostEnvironment)
+        public AttachmentsController(
+            SssclientContext context,
+            IWebHostEnvironment webHostEnvironment,
+            ILogger<AttachmentsController> logger)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _logger = logger;
         }
 
         [HttpPost("upload")]
         public async Task<IActionResult> UploadAttachment([FromForm] int ticketRec, [FromForm] IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded.");
+                return BadRequest(new { message = "No file uploaded." });
 
             // Check if ticket exists
             var ticket = await _context.Tickets.FindAsync(ticketRec);
             if (ticket == null)
-                return NotFound("Ticket not found.");
+                return NotFound(new { message = "Ticket not found." });
 
             // Validate file size
             if (file.Length > MaxFileSize)
-                return BadRequest($"File size exceeds {MaxFileSize / (1024 * 1024)} MB limit.");
+                return BadRequest(new { message = $"File size exceeds {MaxFileSize / (1024 * 1024)} MB limit." });
 
             // Validate file extension
             var fileExtension = Path.GetExtension(file.FileName).ToLower();
             if (!AllowedExtensions.Contains(fileExtension))
-                return BadRequest("File type not allowed. Allowed types: " + string.Join(", ", AllowedExtensions));
+                return BadRequest(new { message = "File type not allowed. Allowed types: " + string.Join(", ", AllowedExtensions) });
 
             try
             {
-                // Create folder structure: wwwroot/uploads/tickets/{ticketId}
-                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "tickets", ticketRec.ToString());
+                var uploadsFolder = GetTicketUploadsFolder(ticketRec);
                 if (!Directory.Exists(uploadsFolder))
                     Directory.CreateDirectory(uploadsFolder);
 
                 // Generate unique filename to prevent overwrites
                 var fileName = Path.GetFileNameWithoutExtension(file.FileName);
-                var uniqueFileName = $"{fileName}_{DateTime.Now:yyyyMMdd_HHmmss}{fileExtension}";
+                var safeFileName = MakeSafeFileName(fileName);
+                var uniqueFileName = $"{safeFileName}_{DateTime.Now:yyyyMMdd_HHmmss}_{Guid.NewGuid():N}{fileExtension}";
                 var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                 // Save file
@@ -81,7 +86,8 @@ namespace SSSClientTickets.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error uploading file: {ex.Message}");
+                _logger.LogError(ex, "Error uploading attachment for ticket {TicketRec}", ticketRec);
+                return StatusCode(500, new { message = $"Error uploading file: {ex.Message}" });
             }
         }
 
@@ -95,14 +101,9 @@ namespace SSSClientTickets.Controllers
             try
             {
                 // Delete physical file
-                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "tickets", attachment.TicketRec.ToString());
-                var filePath = Path.Combine(uploadsFolder, $"*{attachment.FileExtension}");
-                
-                // Find and delete the file (we're searching by extension since we store original filename)
-                var files = Directory.GetFiles(uploadsFolder, Path.GetFileNameWithoutExtension(attachment.FileName) + "_*" + attachment.FileExtension);
-                foreach (var f in files)
+                foreach (var filePath in FindAttachmentFiles(attachment))
                 {
-                    System.IO.File.Delete(f);
+                    System.IO.File.Delete(filePath);
                 }
 
                 // Delete database record
@@ -113,7 +114,8 @@ namespace SSSClientTickets.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error deleting file: {ex.Message}");
+                _logger.LogError(ex, "Error deleting attachment {AttachmentRec}", attachmentRec);
+                return StatusCode(500, new { message = $"Error deleting file: {ex.Message}" });
             }
         }
 
@@ -147,11 +149,10 @@ namespace SSSClientTickets.Controllers
 
             try
             {
-                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "tickets", ticketRec.ToString());
-                var files = Directory.GetFiles(uploadsFolder, Path.GetFileNameWithoutExtension(attachment.FileName) + "_*" + attachment.FileExtension);
+                var files = FindAttachmentFiles(attachment);
 
                 if (files.Length == 0)
-                    return NotFound("File not found on disk.");
+                    return NotFound(new { message = "File not found on disk." });
 
                 var filePath = files[0];
                 var fileStream = System.IO.File.OpenRead(filePath);
@@ -175,8 +176,45 @@ namespace SSSClientTickets.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error retrieving file: {ex.Message}");
+                _logger.LogError(ex, "Error retrieving attachment {AttachmentRec}", attachmentRec);
+                return StatusCode(500, new { message = $"Error retrieving file: {ex.Message}" });
             }
+        }
+
+        private string GetTicketUploadsFolder(int ticketRec)
+        {
+            var webRootPath = _webHostEnvironment.WebRootPath;
+            if (string.IsNullOrWhiteSpace(webRootPath))
+            {
+                webRootPath = Path.Combine(_webHostEnvironment.ContentRootPath, "wwwroot");
+            }
+
+            return Path.Combine(webRootPath, "uploads", "tickets", ticketRec.ToString());
+        }
+
+        private static string MakeSafeFileName(string fileName)
+        {
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var safeFileName = new string(fileName.Select(c => invalidChars.Contains(c) ? '_' : c).ToArray()).Trim();
+            return string.IsNullOrWhiteSpace(safeFileName) ? "attachment" : safeFileName;
+        }
+
+        private string[] FindAttachmentFiles(TicketAttachment attachment)
+        {
+            var uploadsFolder = GetTicketUploadsFolder(attachment.TicketRec);
+            if (!Directory.Exists(uploadsFolder))
+                return Array.Empty<string>();
+
+            var originalFileName = Path.GetFileNameWithoutExtension(attachment.FileName);
+            var safeFileName = MakeSafeFileName(originalFileName);
+            var extension = attachment.FileExtension;
+
+            return Directory
+                .GetFiles(uploadsFolder, $"{safeFileName}_*{extension}")
+                .Concat(Directory.GetFiles(uploadsFolder, $"{originalFileName}_*{extension}"))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderByDescending(System.IO.File.GetCreationTimeUtc)
+                .ToArray();
         }
 
         private string GetContentType(string extension)
