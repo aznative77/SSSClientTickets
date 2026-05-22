@@ -52,6 +52,13 @@ public class LoginModel : PageModel
             return Page();
         }
 
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, Password);
+        if (result == PasswordVerificationResult.Failed)
+        {
+            ModelState.AddModelError(string.Empty, "Invalid email or password.");
+            return Page();
+        }
+
         if (!user.IsActive)
         {
             ModelState.AddModelError(string.Empty, "This account is currently inactive. Please contact the admin.");
@@ -61,13 +68,6 @@ public class LoginModel : PageModel
         if (!user.IsApproved)
         {
             ModelState.AddModelError(string.Empty, "This account is waiting for admin approval.");
-            return Page();
-        }
-
-        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, Password);
-        if (result == PasswordVerificationResult.Failed)
-        {
-            ModelState.AddModelError(string.Empty, "Invalid email or password.");
             return Page();
         }
 
@@ -87,6 +87,17 @@ public class LoginModel : PageModel
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(identity));
+
+        _context.ChangeLogs.Add(new ChangeLog
+        {
+            EntityName = "User",
+            EntityRecordId = user.UserId,
+            Action = "Signed In",
+            Description = $"{user.FullName} signed in",
+            UserId = user.UserId,
+            ChangedAt = DateTime.Now
+        });
+        await _context.SaveChangesAsync();
 
         return LocalRedirect(ReturnUrl ?? Url.Page("/Tickets/Index")!);
     }

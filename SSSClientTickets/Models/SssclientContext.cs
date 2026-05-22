@@ -403,6 +403,7 @@ public partial class SssclientContext : DbContext
 
             var entityName = entry.Entity switch
             {
+                AppUser => "User",
                 Client => "Client",
                 Customer => "Customer",
                 Site => "Site",
@@ -421,7 +422,7 @@ public partial class SssclientContext : DbContext
                 EntityName = entityName,
                 EntityRecordId = GetPrimaryKeyValue(entry),
                 Action = entry.State.ToString(),
-                Description = $"{entry.State} {entityName}",
+                Description = BuildChangeDescription(entry, entityName),
                 UserId = _currentUserService?.UserId,
                 ChangedAt = DateTime.Now
             });
@@ -444,6 +445,77 @@ public partial class SssclientContext : DbContext
     private static bool IsResolved(Ticket ticket)
     {
         return ticket.DateResolved.HasValue || ticket.StatusRec == 4;
+    }
+
+    private static string BuildChangeDescription(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, string entityName)
+    {
+        if (entry.Entity is AppUser user)
+        {
+            return BuildUserChangeDescription(entry, user);
+        }
+
+        return $"{entry.State} {entityName}";
+    }
+
+    private static string BuildUserChangeDescription(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, AppUser user)
+    {
+        var userName = user.FullName;
+
+        if (entry.State == EntityState.Added)
+        {
+            return $"Created user {userName}";
+        }
+
+        if (entry.State == EntityState.Deleted)
+        {
+            return $"Deleted user {userName}";
+        }
+
+        var changes = new List<string>();
+
+        AddUserChange(entry, changes, nameof(AppUser.FirstName), "changed first name");
+        AddUserChange(entry, changes, nameof(AppUser.LastName), "changed last name");
+        AddUserChange(entry, changes, nameof(AppUser.Email), "changed email");
+        AddBooleanUserChange(entry, changes, nameof(AppUser.IsApproved), "approved", "marked pending approval");
+        AddBooleanUserChange(entry, changes, nameof(AppUser.IsActive), "activated", "deactivated");
+        AddBooleanUserChange(entry, changes, nameof(AppUser.IsAdmin), "granted admin", "revoked admin");
+
+        if (entry.Property(nameof(AppUser.PasswordHash)).IsModified)
+        {
+            changes.Add("reset password");
+        }
+
+        return changes.Count == 0
+            ? $"Updated user {userName}"
+            : $"Updated user {userName}: {string.Join(", ", changes)}";
+    }
+
+    private static void AddUserChange(
+        Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry,
+        ICollection<string> changes,
+        string propertyName,
+        string description)
+    {
+        if (entry.Property(propertyName).IsModified)
+        {
+            changes.Add(description);
+        }
+    }
+
+    private static void AddBooleanUserChange(
+        Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry,
+        ICollection<string> changes,
+        string propertyName,
+        string trueDescription,
+        string falseDescription)
+    {
+        var property = entry.Property(propertyName);
+        if (!property.IsModified)
+        {
+            return;
+        }
+
+        changes.Add(property.CurrentValue is true ? trueDescription : falseDescription);
     }
 
     private sealed record PendingChangeLog(
