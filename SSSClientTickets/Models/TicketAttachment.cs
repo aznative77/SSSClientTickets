@@ -19,5 +19,9 @@ public partial class TicketAttachment
 
     public bool IsImage { get; set; }
 
+    public int? UploadedByUserId { get; set; }
+
+    public virtual AppUser? UploadedByUser { get; set; }
+
     public virtual Ticket TicketRecNavigation { get; set; } = null!;
 }

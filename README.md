@@ -1,26 +1,32 @@
 # SSSClientTickets
 
-A ticket management system for managing client support tickets, built with ASP.NET Core 8 and SQL Server.
+SSSClientTickets is an ASP.NET Core 8 Razor Pages application for managing client support tickets, ticket time, attachments, and client/customer/site records.
 
 ## Overview
 
-SSSClientTickets is an ASP.NET Core web application for tracking and managing support tickets across multiple clients and sites. It provides an intuitive interface for creating, editing, and monitoring ticket status and time tracking.
+The app tracks support work across clients, customers, and sites. It includes authenticated user accounts so ticket activity can be tied back to the person who created, resolved, recorded, uploaded, or changed information.
 
 ## Features
 
-- **Client Management** — Create and manage client records
-- **Customer Management** — Track customer information associated with clients
-- **Site Management** — Organize tickets by client sites
-- **Ticket Management** — Create, edit, and delete support tickets
-- **Ticket Time Tracking** — Log time spent on each ticket
-- **Status Tracking** — Monitor ticket status changes
-- **RESTful API** — Ticket endpoints for programmatic access
+- **Client Management** - Create and manage client records.
+- **Customer Management** - Track customer contact information associated with clients.
+- **Site Management** - Organize client locations and associate tickets with sites.
+- **Ticket Management** - Create, edit, view, and delete support tickets.
+- **Ticket Time Tracking** - Log time spent on each ticket.
+- **Ticket Attachments** - Upload, preview, download, and delete files attached to tickets.
+- **User Authentication** - Login/register flow using cookie authentication and hashed passwords.
+- **Admin User Management** - Admins can add users, approve users, activate/deactivate accounts, assign admin status, reset passwords, and delete unused users.
+- **Approval Workflow** - New self-registered users must be approved by an admin before they can access the site.
+- **Activity Attribution** - Tickets record who created and resolved them, ticket time records who logged time, and attachments record who uploaded files.
+- **Change Log** - Changes to Clients, Customers, and Sites are logged with the user who made the change.
+- **RESTful API** - Ticket and attachment endpoints support page behavior and programmatic access.
 
 ## Prerequisites
 
-- **.NET 8 SDK** or later — [Download](https://dotnet.microsoft.com/download)
-- **SQL Server 2019** or later (Express or Full)
-- **Visual Studio 2022** or **VS Code** with C# extension
+- **.NET 8 SDK** or later
+- **SQL Server 2019** or later, Express or full SQL Server
+- **Visual Studio 2022** or **VS Code** with the C# extension
+- Optional: `dotnet-ef` for manual migration commands
 
 ## Installation
 
@@ -35,7 +41,7 @@ cd SSSClientTickets
 
 Copy the example settings file:
 
-```bash
+```powershell
 copy SSSClientTickets\appsettings.Example.json SSSClientTickets\appsettings.json
 ```
 
@@ -45,14 +51,11 @@ Then edit `SSSClientTickets/appsettings.json` and update the connection string:
 {
   "ConnectionStrings": {
     "SSSClientConnection": "Server=YOUR_SERVER;Database=SSSClient;Trusted_Connection=True;TrustServerCertificate=True"
-  },
-  ...
+  }
 }
 ```
 
-Replace:
-- `YOUR_SERVER` — Your SQL Server instance name (e.g., `localhost`, `.\SQLEXPRESS`, or server hostname)
-- Ensure the database `SSSClient` exists or Entity Framework will create it
+Replace `YOUR_SERVER` with your SQL Server instance, such as `localhost`, `.\SQLEXPRESS`, or a server hostname.
 
 ### 3. Restore Dependencies
 
@@ -63,28 +66,45 @@ dotnet restore
 ### 4. Run the Application
 
 ```bash
-dotnet run
+dotnet run --project SSSClientTickets/SSSClientTickets.csproj
 ```
 
-The application will:
-- Start on `https://localhost:5001` or `http://localhost:5000`
-- Automatically apply any pending database migrations
+The application automatically applies pending Entity Framework migrations on startup.
 
-## Configuration
+## First Login
 
-### appsettings.json
+The first registered account is automatically approved and marked as an admin. After that:
 
-The `appsettings.json` file contains sensitive configuration and **should never be committed to version control**. It is in `.gitignore` by default.
+- Self-registered users are created as pending approval.
+- Pending users cannot access the site until an admin approves them.
+- Inactive users cannot access the site and are told to contact the admin.
+- Admins can manage users from the **Users** navigation item.
 
-For development or deployment, create your own `appsettings.json` based on `appsettings.Example.json`.
+## User Management
 
-### Environment-Specific Settings
+Admins can use `/Admin/Users/Index` to:
 
-You can create environment-specific configuration files:
-- `appsettings.Development.json` — Development settings
-- `appsettings.Production.json` — Production settings
+- View all users.
+- Add users manually.
+- Approve pending users.
+- Toggle active/inactive status.
+- Toggle admin status.
+- Reset passwords.
+- Delete users that are not connected to tickets, time entries, attachments, or change logs.
 
-The application will load the appropriate file based on the `ASPNETCORE_ENVIRONMENT` variable.
+If a user already has related history, mark them inactive instead of deleting them so historical records stay intact.
+
+## Audit and Attribution
+
+The app records user activity in several places:
+
+- `Ticket.CreatedByUserId` - user who created the ticket.
+- `Ticket.ResolvedByUserId` - user who resolved the ticket.
+- `TicketTime.TimeRecordedByUserId` - user who recorded ticket time.
+- `TicketAttachment.UploadedByUserId` - user who uploaded an attachment.
+- `ChangeLog.UserId` - user who changed a Client, Customer, or Site record.
+
+The Change Log page shows recent Client, Customer, and Site changes with the user and timestamp.
 
 ## Database
 
@@ -92,78 +112,92 @@ The application uses Entity Framework Core with SQL Server.
 
 ### Migrations
 
-Migrations are automatically applied on startup. To manually manage migrations:
+Migrations are automatically applied on startup. To manage them manually:
 
 ```bash
-# Add a new migration
-dotnet ef migrations add <MigrationName>
-
-# Update the database
-dotnet ef database update
-
-# Revert to previous migration
-dotnet ef database update <PreviousMigrationName>
+dotnet ef migrations add <MigrationName> --project SSSClientTickets/SSSClientTickets.csproj
+dotnet ef database update --project SSSClientTickets/SSSClientTickets.csproj
 ```
+
+Recent authentication and audit migrations include:
+
+- `AddUsersAndAudit`
+- `RequireFirstAndLastName`
+- `AddUserApproval`
+- `AddTicketAttachmentUploadedBy`
 
 ## Project Structure
 
-```
+```text
 SSSClientTickets/
-├── Controllers/        # API controllers
-├── Models/            # Database models and DbContext
-├── Pages/             # Razor Pages (UI)
-│   ├── Clients/       # Client management pages
-│   ├── Customers/     # Customer management pages
-│   ├── Sites/         # Site management pages
-│   ├── Tickets/       # Ticket management pages
-│   └── TicketTime/    # Ticket time tracking pages
-├── Migrations/        # EF Core database migrations
-├── wwwroot/           # Static files (CSS, JavaScript)
-└── appsettings.json   # Configuration (not in version control)
++-- Controllers/        # API controllers for tickets and attachments
++-- Models/             # EF models and SssclientContext
++-- Pages/              # Razor Pages UI
+|   +-- Account/        # Login, register, logout
+|   +-- Admin/Users/    # Admin user management
+|   +-- ChangeLogs/     # Change log viewer
+|   +-- Clients/        # Client management pages
+|   +-- Customers/      # Customer management pages
+|   +-- Sites/          # Site management pages
+|   +-- Tickets/        # Ticket management pages
+|   +-- TicketTime/     # Ticket time tracking pages
++-- Services/           # Current user helper service
++-- Migrations/         # EF Core database migrations
++-- wwwroot/            # Static files, uploads, CSS, JavaScript
++-- appsettings.json    # Local configuration, not committed
 ```
-
-## Usage
-
-1. **Navigate to the home page** — `https://localhost:5001`
-2. **Manage Clients** — Add and edit client records
-3. **Manage Sites** — Associate sites with clients
-4. **Create Tickets** — Create new support tickets for clients
-5. **Track Time** — Log time spent on each ticket
-6. **Monitor Status** — View ticket status and details
 
 ## API Endpoints
 
-The `TicketsController` provides RESTful endpoints for ticket management:
+Ticket endpoints:
 
-- `GET /api/tickets` — Get all tickets
-- `GET /api/tickets/{id}` — Get ticket details
-- `POST /api/tickets` — Create a new ticket
-- `PUT /api/tickets/{id}` — Update a ticket
-- `DELETE /api/tickets/{id}` — Delete a ticket
+- `GET /api/tickets`
+- `GET /api/tickets/{id}`
+- `POST /api/tickets`
+- `PUT /api/tickets/{id}`
+- `DELETE /api/tickets/{id}`
+- `GET /api/tickets/client-hourly-rate?clientId={id}`
+
+Attachment endpoints:
+
+- `POST /api/attachments/upload`
+- `GET /api/attachments/ticket/{ticketRec}`
+- `GET /api/attachments/file/{ticketRec}/{attachmentRec}`
+- `DELETE /api/attachments/delete/{attachmentRec}`
 
 ## Troubleshooting
 
 ### Database Connection Error
 
-- Verify SQL Server is running
-- Check the connection string in `appsettings.json`
-- Ensure the database exists or has been created by EF Core
+- Verify SQL Server is running.
+- Check `SSSClientTickets/appsettings.json`.
+- Include `TrustServerCertificate=True` for local SQL Server development if the SQL client reports certificate or encryption issues.
+
+### No Admin Account
+
+The first registered account becomes the first admin. If users already exist but none are admins, update one directly in SQL:
+
+```sql
+UPDATE dbo.AppUser
+SET IsAdmin = 1, IsActive = 1, IsApproved = 1
+WHERE Email = 'your-email@example.com';
+```
 
 ### Port Already in Use
 
-If port 5001/5000 is already in use, you can specify a different port:
+Run on a different port:
 
 ```bash
-dotnet run --urls="http://localhost:5002"
+dotnet run --project SSSClientTickets/SSSClientTickets.csproj --urls="http://localhost:5002"
 ```
 
-### Migrations Won't Apply
+### Reset Local Database
 
-Clear the local migrations and re-apply:
+Only use this for disposable development data:
 
 ```bash
-dotnet ef database drop
-dotnet ef database update
+dotnet ef database drop --project SSSClientTickets/SSSClientTickets.csproj
+dotnet ef database update --project SSSClientTickets/SSSClientTickets.csproj
 ```
 
 ## Contributing
@@ -175,7 +209,7 @@ dotnet ef database update
 
 ## License
 
-This project is licensed under the MIT License with the Commons Clause — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License with the Commons Clause. See [LICENSE](LICENSE) for details.
 
 **Summary:**
 - ✓ You can use, modify, and distribute this for **non-profit purposes**
@@ -183,4 +217,4 @@ This project is licensed under the MIT License with the Commons Clause — see t
 
 ## Support
 
-For questions or issues, please contact [aznative77@gmail.com](mailto:aznative77@gmail.com).
+For questions or issues, contact [aznative77@gmail.com](mailto:aznative77@gmail.com).

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SSSClientTickets.Models;
 
@@ -11,9 +12,11 @@ using SSSClientTickets.Models;
 namespace SSSClientTickets.Migrations
 {
     [DbContext(typeof(SssclientContext))]
-    partial class SssclientContextModelSnapshot : ModelSnapshot
+    [Migration("20260522000600_AddUserApproval")]
+    partial class AddUserApproval
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -343,17 +346,12 @@ namespace SSSClientTickets.Migrations
                     b.Property<int>("TicketRec")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UploadedByUserId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UploadedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("AttachmentRec");
 
                     b.HasIndex("TicketRec");
-
-                    b.HasIndex("UploadedByUserId");
 
                     b.ToTable("TicketAttachment", (string)null);
                 });
@@ -563,15 +561,7 @@ namespace SSSClientTickets.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_TicketAttachment_Ticket");
 
-                    b.HasOne("SSSClientTickets.Models.AppUser", "UploadedByUser")
-                        .WithMany("TicketAttachmentsUploaded")
-                        .HasForeignKey("UploadedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("FK_TicketAttachment_UploadedBy_AppUser");
-
                     b.Navigation("TicketRecNavigation");
-
-                    b.Navigation("UploadedByUser");
                 });
 
             modelBuilder.Entity("SSSClientTickets.Models.TicketTime", b =>
@@ -596,8 +586,6 @@ namespace SSSClientTickets.Migrations
             modelBuilder.Entity("SSSClientTickets.Models.AppUser", b =>
                 {
                     b.Navigation("ChangeLogs");
-
-                    b.Navigation("TicketAttachmentsUploaded");
 
                     b.Navigation("TicketTimesRecorded");
 

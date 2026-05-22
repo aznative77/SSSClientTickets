@@ -46,7 +46,23 @@ namespace SSSClientTickets.Pages.Tickets
                 return Page();
             }
 
-            _context.Attach(Ticket).State = EntityState.Modified;
+            var ticketToUpdate = await _context.Tickets.FindAsync(Ticket.TicketRec);
+            if (ticketToUpdate == null)
+                return NotFound();
+
+            await TryUpdateModelAsync(
+                ticketToUpdate,
+                "Ticket",
+                t => t.ClientRec,
+                t => t.CustomerRec,
+                t => t.SiteRec,
+                t => t.HourlyRate,
+                t => t.Issue,
+                t => t.Resolution,
+                t => t.StatusRec,
+                t => t.DateLogged,
+                t => t.DateResolved,
+                t => t.DateBilled);
 
             try
             {

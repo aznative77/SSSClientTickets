@@ -15,5 +15,9 @@ public partial class TicketTime
 
     public string? Notes { get; set; }
 
+    public int? TimeRecordedByUserId { get; set; }
+
+    public virtual AppUser? TimeRecordedByUser { get; set; }
+
     public virtual Ticket TicketRecNavigation { get; set; } = null!;
 }

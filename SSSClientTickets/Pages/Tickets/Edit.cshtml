@@ -270,6 +270,7 @@
                         <div class="file-info">
                             <div class="file-name">${escapeHtml(att.fileName)}</div>
                             <div class="file-meta">Uploaded: ${new Date(att.uploadedDate).toLocaleDateString()}</div>
+                            <div class="file-meta">By: ${escapeHtml(att.uploadedBy || 'Unknown')}</div>
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-danger delete-btn" onclick="deleteAttachment(${att.attachmentRec})">
                             Delete

@@ -123,6 +123,7 @@ namespace SSSClientTickets.Controllers
         public async Task<IActionResult> GetTicketAttachments(int ticketRec)
         {
             var attachments = await _context.TicketAttachments
+                .Include(a => a.UploadedByUser)
                 .Where(a => a.TicketRec == ticketRec)
                 .OrderByDescending(a => a.UploadedDate)
                 .ToListAsync();
@@ -134,6 +135,7 @@ namespace SSSClientTickets.Controllers
                 a.FileExtension,
                 a.IsImage,
                 a.UploadedDate,
+                uploadedBy = a.UploadedByUser == null ? null : a.UploadedByUser.FullName,
                 imagePath = a.IsImage ? $"/uploads/tickets/{ticketRec}/*{a.FileExtension}" : null
             }));
         }

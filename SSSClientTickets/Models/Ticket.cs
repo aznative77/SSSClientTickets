@@ -27,6 +27,10 @@ public partial class Ticket
 
     public decimal HourlyRate { get; set; }
 
+    public int? CreatedByUserId { get; set; }
+
+    public int? ResolvedByUserId { get; set; }
+
     public virtual Client ClientRecNavigation { get; set; } = null!;
 
     public virtual Customer CustomerRecNavigation { get; set; } = null!;
@@ -34,6 +38,10 @@ public partial class Ticket
     public virtual Site? SiteRecNavigation { get; set; }
 
     public virtual TicketStatus StatusRecNavigation { get; set; } = null!;
+
+    public virtual AppUser? CreatedByUser { get; set; }
+
+    public virtual AppUser? ResolvedByUser { get; set; }
 
     public virtual ICollection<TicketTime> TicketTimes { get; set; } = new List<TicketTime>();
 

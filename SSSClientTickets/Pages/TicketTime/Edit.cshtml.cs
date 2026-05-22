@@ -48,7 +48,17 @@ namespace SSSClientTickets.Pages.TicketTime
                 return Page();
             }
 
-            _context.Attach(TicketEntry).State = EntityState.Modified;
+            var entryToUpdate = await _context.TicketTimes.FindAsync(TicketEntry.TimeRec);
+            if (entryToUpdate == null)
+                return NotFound();
+
+            await TryUpdateModelAsync(
+                entryToUpdate,
+                "TicketEntry",
+                t => t.TicketRec,
+                t => t.StartTime,
+                t => t.EndTime,
+                t => t.Notes);
 
             try
             {

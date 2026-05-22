@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SSSClientTickets.Models;
 
@@ -11,9 +12,11 @@ using SSSClientTickets.Models;
 namespace SSSClientTickets.Migrations
 {
     [DbContext(typeof(SssclientContext))]
-    partial class SssclientContextModelSnapshot : ModelSnapshot
+    [Migration("20260521175940_AddUsersAndAudit")]
+    partial class AddUsersAndAudit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,15 +36,14 @@ namespace SSSClientTickets.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime");
 
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -52,16 +54,6 @@ namespace SSSClientTickets.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
-
-                    b.Property<bool>("IsApproved")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -343,17 +335,12 @@ namespace SSSClientTickets.Migrations
                     b.Property<int>("TicketRec")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UploadedByUserId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UploadedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("AttachmentRec");
 
                     b.HasIndex("TicketRec");
-
-                    b.HasIndex("UploadedByUserId");
 
                     b.ToTable("TicketAttachment", (string)null);
                 });
@@ -563,15 +550,7 @@ namespace SSSClientTickets.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_TicketAttachment_Ticket");
 
-                    b.HasOne("SSSClientTickets.Models.AppUser", "UploadedByUser")
-                        .WithMany("TicketAttachmentsUploaded")
-                        .HasForeignKey("UploadedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("FK_TicketAttachment_UploadedBy_AppUser");
-
                     b.Navigation("TicketRecNavigation");
-
-                    b.Navigation("UploadedByUser");
                 });
 
             modelBuilder.Entity("SSSClientTickets.Models.TicketTime", b =>
@@ -596,8 +575,6 @@ namespace SSSClientTickets.Migrations
             modelBuilder.Entity("SSSClientTickets.Models.AppUser", b =>
                 {
                     b.Navigation("ChangeLogs");
-
-                    b.Navigation("TicketAttachmentsUploaded");
 
                     b.Navigation("TicketTimesRecorded");
 

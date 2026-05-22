@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using SSSClientTickets.Services;
 
 namespace SSSClientTickets.Models;
 
 public partial class SssclientContext : DbContext
 {
+    private readonly ICurrentUserService? _currentUserService;
+    private bool _savingChangeLogs;
+
     public SssclientContext()
     {
     }
@@ -14,6 +18,16 @@ public partial class SssclientContext : DbContext
         : base(options)
     {
     }
+
+    public SssclientContext(DbContextOptions<SssclientContext> options, ICurrentUserService currentUserService)
+        : base(options)
+    {
+        _currentUserService = currentUserService;
+    }
+
+    public virtual DbSet<AppUser> AppUsers { get; set; }
+
+    public virtual DbSet<ChangeLog> ChangeLogs { get; set; }
 
     public virtual DbSet<Client> Clients { get; set; }
 
@@ -33,8 +47,81 @@ public partial class SssclientContext : DbContext
 
     public virtual DbSet<VwTicketTime> VwTicketTimes { get; set; }
 
+    public override int SaveChanges()
+    {
+        return SaveChangesAsync().GetAwaiter().GetResult();
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        if (_savingChangeLogs)
+        {
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        StampTicketUsers();
+        StampTicketTimeUsers();
+        StampTicketAttachmentUsers();
+
+        var pendingChangeLogs = BuildChangeLogs().ToList();
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        if (pendingChangeLogs.Count > 0)
+        {
+            _savingChangeLogs = true;
+            foreach (var pendingChangeLog in pendingChangeLogs)
+            {
+                if (pendingChangeLog.ChangeLog.EntityRecordId == 0)
+                {
+                    pendingChangeLog.ChangeLog.EntityRecordId = GetPrimaryKeyValue(pendingChangeLog.Entry);
+                }
+            }
+
+            ChangeLogs.AddRange(pendingChangeLogs.Select(p => p.ChangeLog));
+            result += await base.SaveChangesAsync(cancellationToken);
+            _savingChangeLogs = false;
+        }
+
+        return result;
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AppUser>(entity =>
+        {
+            entity.HasKey(e => e.UserId);
+
+            entity.ToTable("AppUser");
+
+            entity.HasIndex(e => e.Email).IsUnique();
+
+            entity.Property(e => e.Email).HasMaxLength(256);
+            entity.Property(e => e.PasswordHash).HasMaxLength(512);
+            entity.Property(e => e.FirstName).HasMaxLength(50);
+            entity.Property(e => e.LastName).HasMaxLength(50);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsApproved).HasDefaultValue(false);
+            entity.Property(e => e.IsAdmin).HasDefaultValue(false);
+        });
+
+        modelBuilder.Entity<ChangeLog>(entity =>
+        {
+            entity.HasKey(e => e.ChangeLogId);
+
+            entity.ToTable("ChangeLog");
+
+            entity.Property(e => e.EntityName).HasMaxLength(50);
+            entity.Property(e => e.Action).HasMaxLength(20);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.ChangedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ChangeLogs)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_ChangeLog_AppUser");
+        });
+
         modelBuilder.Entity<Client>(entity =>
         {
             entity.HasKey(e => e.ClientRec);
@@ -155,6 +242,16 @@ public partial class SssclientContext : DbContext
                 .HasForeignKey(d => d.StatusRec)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Ticket_TicketStatus");
+
+            entity.HasOne(d => d.CreatedByUser).WithMany(p => p.TicketsCreated)
+                .HasForeignKey(d => d.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_Ticket_CreatedBy_AppUser");
+
+            entity.HasOne(d => d.ResolvedByUser).WithMany(p => p.TicketsResolved)
+                .HasForeignKey(d => d.ResolvedByUserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_Ticket_ResolvedBy_AppUser");
         });
 
         modelBuilder.Entity<TicketStatus>(entity =>
@@ -185,6 +282,11 @@ public partial class SssclientContext : DbContext
                 .HasForeignKey(d => d.TicketRec)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_TicketTime_Ticket");
+
+            entity.HasOne(d => d.TimeRecordedByUser).WithMany(p => p.TicketTimesRecorded)
+                .HasForeignKey(d => d.TimeRecordedByUserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_TicketTime_TimeRecordedBy_AppUser");
         });
 
         modelBuilder.Entity<VwOpenTicket>(entity =>
@@ -222,10 +324,131 @@ public partial class SssclientContext : DbContext
                 .HasForeignKey(d => d.TicketRec)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_TicketAttachment_Ticket");
+
+            entity.HasOne(d => d.UploadedByUser).WithMany(p => p.TicketAttachmentsUploaded)
+                .HasForeignKey(d => d.UploadedByUserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_TicketAttachment_UploadedBy_AppUser");
         });
 
         OnModelCreatingPartial(modelBuilder);
     }
+
+    private void StampTicketUsers()
+    {
+        var userId = _currentUserService?.UserId;
+        if (userId == null)
+        {
+            return;
+        }
+
+        foreach (var entry in ChangeTracker.Entries<Ticket>())
+        {
+            if (entry.State == EntityState.Added && entry.Entity.CreatedByUserId == null)
+            {
+                entry.Entity.CreatedByUserId = userId;
+            }
+
+            if (entry.State is EntityState.Added or EntityState.Modified
+                && entry.Entity.ResolvedByUserId == null
+                && IsResolved(entry.Entity))
+            {
+                entry.Entity.ResolvedByUserId = userId;
+            }
+        }
+    }
+
+    private void StampTicketTimeUsers()
+    {
+        var userId = _currentUserService?.UserId;
+        if (userId == null)
+        {
+            return;
+        }
+
+        foreach (var entry in ChangeTracker.Entries<TicketTime>())
+        {
+            if (entry.State == EntityState.Added && entry.Entity.TimeRecordedByUserId == null)
+            {
+                entry.Entity.TimeRecordedByUserId = userId;
+            }
+        }
+    }
+
+    private void StampTicketAttachmentUsers()
+    {
+        var userId = _currentUserService?.UserId;
+        if (userId == null)
+        {
+            return;
+        }
+
+        foreach (var entry in ChangeTracker.Entries<TicketAttachment>())
+        {
+            if (entry.State == EntityState.Added && entry.Entity.UploadedByUserId == null)
+            {
+                entry.Entity.UploadedByUserId = userId;
+            }
+        }
+    }
+
+    private IEnumerable<PendingChangeLog> BuildChangeLogs()
+    {
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.Entity is ChangeLog || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+            {
+                continue;
+            }
+
+            var entityName = entry.Entity switch
+            {
+                Client => "Client",
+                Customer => "Customer",
+                Site => "Site",
+                _ => null
+            };
+
+            if (entityName == null)
+            {
+                continue;
+            }
+
+            yield return new PendingChangeLog(
+                entry,
+                new ChangeLog
+            {
+                EntityName = entityName,
+                EntityRecordId = GetPrimaryKeyValue(entry),
+                Action = entry.State.ToString(),
+                Description = $"{entry.State} {entityName}",
+                UserId = _currentUserService?.UserId,
+                ChangedAt = DateTime.Now
+            });
+        }
+    }
+
+    private static int GetPrimaryKeyValue(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+    {
+        var key = entry.Metadata.FindPrimaryKey();
+        var property = key?.Properties.FirstOrDefault();
+        if (property == null)
+        {
+            return 0;
+        }
+
+        var value = entry.Property(property.Name).CurrentValue;
+        return value is int intValue ? intValue : 0;
+    }
+
+    private static bool IsResolved(Ticket ticket)
+    {
+        return ticket.DateResolved.HasValue || ticket.StatusRec == 4;
+    }
+
+    private sealed record PendingChangeLog(
+        Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry Entry,
+        ChangeLog ChangeLog);
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

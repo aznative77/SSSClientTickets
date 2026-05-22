@@ -67,8 +67,14 @@
                     <dt class="col-sm-3">Date Logged</dt>
                     <dd class="col-sm-9">@Model.Ticket.DateLogged?.ToString("MM/dd/yyyy")</dd>
 
+                    <dt class="col-sm-3">Created By</dt>
+                    <dd class="col-sm-9">@(Model.Ticket.CreatedByUser?.FullName ?? Model.Ticket.CreatedByUser?.Email ?? "—")</dd>
+
                     <dt class="col-sm-3">Date Resolved</dt>
                     <dd class="col-sm-9">@(Model.Ticket.DateResolved?.ToString("MM/dd/yyyy") ?? "—")</dd>
+
+                    <dt class="col-sm-3">Resolved By</dt>
+                    <dd class="col-sm-9">@(Model.Ticket.ResolvedByUser?.FullName ?? Model.Ticket.ResolvedByUser?.Email ?? "—")</dd>
                 </dl>
             </div>
         </div>
@@ -135,6 +141,7 @@
                                 <div class="attachment-info">
                                     <p class="attachment-name">@attachment.FileName</p>
                                     <small class="text-muted">@attachment.UploadedDate.ToString("MM/dd/yyyy hh:mm tt")</small>
+                                    <small class="text-muted">Uploaded by @(attachment.UploadedByUser?.FullName ?? "Unknown")</small>
                                     <div class="mt-2">
                                         <a href="/api/attachments/file/@Model.Ticket.TicketRec/@attachment.AttachmentRec" 
                                         download="@attachment.FileName" 
@@ -167,6 +174,7 @@
                                 <th>Start</th>
                                 <th>End</th>
                                 <th>Duration</th>
+                                <th>Recorded By</th>
                                 <th>Notes</th>
                                 <th></th>
                             </tr>
@@ -181,6 +189,7 @@
                                     <td>@entry.StartTime?.ToString("MM/dd/yyyy hh:mm tt")</td>
                                     <td>@entry.EndTime?.ToString("MM/dd/yyyy hh:mm tt")</td>
                                     <td>@duration min</td>
+                                    <td>@(entry.TimeRecordedByUser?.FullName ?? entry.TimeRecordedByUser?.Email ?? "—")</td>
                                     <td>@entry.Notes</td>
                                     <td class="text-end">
                                         <a asp-page="/TicketTime/Edit" asp-route-id="@entry.TimeRec" class="btn btn-sm btn-outline-primary">Edit</a>
@@ -191,7 +200,7 @@
                         <tfoot class="table-light">
                             <tr>
                                 <td colspan="2"><strong>Total Time</strong></td>
-                                <td colspan="3">
+                                <td colspan="4">
                                     <strong>
                                         @{
                                             var totalMinutes = Model.Ticket.TicketTimes

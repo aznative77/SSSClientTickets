@@ -1,0 +1,67 @@
+@page
+@model SSSClientTickets.Pages.Admin.Users.IndexModel
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Users</h2>
+    <a asp-page="Create" class="btn btn-primary">Add User</a>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Created</th>
+            <th>Approved</th>
+            <th>Admin</th>
+            <th>Active</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            var isCurrentUser = user.UserId == Model.CurrentUserId;
+            <tr>
+                <td>@user.FullName</td>
+                <td>@user.Email</td>
+                <td>@user.CreatedAt.ToString("MM/dd/yyyy")</td>
+                <td>
+                    <form method="post" asp-page-handler="ToggleApproved" asp-route-id="@user.UserId" class="d-inline">
+                        <button type="submit" class="btn btn-sm @(user.IsApproved ? "btn-success" : "btn-warning")" disabled="@isCurrentUser">
+                            @(user.IsApproved ? "Approved" : "Pending")
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" asp-page-handler="ToggleAdmin" asp-route-id="@user.UserId" class="d-inline">
+                        <button type="submit" class="btn btn-sm @(user.IsAdmin ? "btn-success" : "btn-outline-secondary")">
+                            @(user.IsAdmin ? "Admin" : "Not Admin")
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" asp-page-handler="ToggleActive" asp-route-id="@user.UserId" class="d-inline">
+                        <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-success" : "btn-outline-secondary")" disabled="@isCurrentUser">
+                            @(user.IsActive ? "Active" : "Inactive")
+                        </button>
+                    </form>
+                </td>
+                <td class="text-end">
+                    <a asp-page="ResetPassword" asp-route-id="@user.UserId" class="btn btn-sm btn-outline-primary">Reset Password</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@user.UserId" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" disabled="@isCurrentUser" onclick="return confirm('Delete this user? Users connected to tickets, time entries, or change logs cannot be deleted.');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
