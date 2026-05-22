@@ -3,22 +3,26 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SSSClientTickets.Models;
+using SSSClientTickets.Services;
 
 namespace SSSClientTickets.Pages.Tickets
 {
     public class IndexModel : PageModel
     {
         private readonly SssclientContext _context;
+        private readonly ICurrentUserService _currentUserService;
 
-        public IndexModel(SssclientContext context)
+        public IndexModel(SssclientContext context, ICurrentUserService currentUserService)
         {
             _context = context;
+            _currentUserService = currentUserService;
         }
 
         public IList<Ticket> Tickets { get; set; } = new List<Ticket>();
         public List<SelectListItem> StatusOptions { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> ClientOptions { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> CustomerOptions { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> UserOptions { get; set; } = new List<SelectListItem>();
 
         // Filter properties
         [BindProperty(SupportsGet = true)]
@@ -29,6 +33,12 @@ namespace SSSClientTickets.Pages.Tickets
 
         [BindProperty(SupportsGet = true)]
         public int[]? FilterCustomerRec { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int? FilterCreatedByUserId { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int? FilterResolvedByUserId { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public DateTime? FilterDateLoggedFrom { get; set; }
@@ -81,11 +91,30 @@ namespace SSSClientTickets.Pages.Tickets
                 .Select(c => new SelectListItem(c.CustomerName, c.CustomerRec.ToString()))
                 .ToList();
 
+            var currentUserId = _currentUserService.UserId;
+            var users = await _context.AppUsers
+                .Where(u => u.IsActive)
+                .ToListAsync();
+            UserOptions = new SelectListItem[] { new SelectListItem("-- All Users --", "") }
+                .Concat(users
+                    .OrderByDescending(u => currentUserId.HasValue && u.UserId == currentUserId.Value)
+                    .ThenBy(u => u.LastName)
+                    .ThenBy(u => u.FirstName)
+                    .ThenBy(u => u.Email)
+                    .Select(u => new SelectListItem(
+                        currentUserId.HasValue && u.UserId == currentUserId.Value
+                            ? $"{u.FullName} (Me)"
+                            : u.FullName,
+                        u.UserId.ToString())))
+                .ToList();
+
             // Build query
             var query = _context.Tickets
                 .Include(t => t.ClientRecNavigation)
                 .Include(t => t.CustomerRecNavigation)
                 .Include(t => t.StatusRecNavigation)
+                .Include(t => t.CreatedByUser)
+                .Include(t => t.ResolvedByUser)
                 .AsQueryable();
 
             // Apply filters
@@ -102,6 +131,16 @@ namespace SSSClientTickets.Pages.Tickets
             if (FilterCustomerRec != null && FilterCustomerRec.Length > 0)
             {
                 query = query.Where(t => FilterCustomerRec.Contains(t.CustomerRec));
+            }
+
+            if (FilterCreatedByUserId.HasValue && FilterCreatedByUserId > 0)
+            {
+                query = query.Where(t => t.CreatedByUserId == FilterCreatedByUserId);
+            }
+
+            if (FilterResolvedByUserId.HasValue && FilterResolvedByUserId > 0)
+            {
+                query = query.Where(t => t.ResolvedByUserId == FilterResolvedByUserId);
             }
 
             if (FilterDateLoggedFrom.HasValue)

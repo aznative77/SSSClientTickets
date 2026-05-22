@@ -76,7 +76,20 @@
                 <input type="text" class="form-control" id="FilterIssueSearch" name="FilterIssueSearch" placeholder="Search issue..." asp-for="FilterIssueSearch">
             </div>
 
-            <fieldset class="col-md-4 date-filter-fieldset">
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <label for="FilterCreatedByUserId" class="form-label">Created By</label>
+                    <select class="form-select" id="FilterCreatedByUserId" name="FilterCreatedByUserId" asp-items="Model.UserOptions" asp-for="FilterCreatedByUserId">
+                    </select>
+                </div>
+                <div>
+                    <label for="FilterResolvedByUserId" class="form-label">Resolved By</label>
+                    <select class="form-select" id="FilterResolvedByUserId" name="FilterResolvedByUserId" asp-items="Model.UserOptions" asp-for="FilterResolvedByUserId">
+                    </select>
+                </div>
+            </div>
+
+            <fieldset class="col-md-3 date-filter-fieldset">
                 <legend class="form-label fs-6">Date Logged</legend>
                 <div class="row g-2">
                     <div class="col-md-6">
@@ -91,7 +104,7 @@
                 </div>
             </fieldset>
 
-            <fieldset class="col-md-4 date-filter-fieldset">
+            <fieldset class="col-md-3 date-filter-fieldset">
                 <legend class="form-label fs-6">Date Resolved</legend>
                 <div class="row g-2">
                     <div class="col-md-6">
@@ -106,7 +119,7 @@
                 </div>
             </fieldset>
 
-            <fieldset class="col-md-4 date-filter-fieldset">
+            <fieldset class="col-md-3 date-filter-fieldset">
                 <legend class="form-label fs-6">Date Billed</legend>
                 <div class="row g-2">
                     <div class="col-md-6">
