@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -54,6 +55,10 @@ namespace SSSClientTickets.Pages.Customers
         {
             // Remove ClientRecNavigation from validation since it's a nav property
             ModelState.Remove("Customer.ClientRecNavigation");
+            foreach (var key in ModelState.Keys.Where(k => k.StartsWith("Customer.ClientRecNavigation", StringComparison.OrdinalIgnoreCase)).ToList())
+            {
+                ModelState.Remove(key);
+            }
 
             if (!ModelState.IsValid)
             {

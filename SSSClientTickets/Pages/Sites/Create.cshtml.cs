@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -48,6 +49,10 @@ namespace SSSClientTickets.Pages.Sites
         public async Task<IActionResult> OnPostAjaxAsync()
         {
             ModelState.Remove("Site.ClientRecNavigation");
+            foreach (var key in ModelState.Keys.Where(k => k.StartsWith("Site.ClientRecNavigation", StringComparison.OrdinalIgnoreCase)).ToList())
+            {
+                ModelState.Remove(key);
+            }
 
             if (!ModelState.IsValid)
             {

@@ -226,21 +226,27 @@
                 $('#customerValidationSummary').hide();
                 $('#addCustomerForm .is-invalid').removeClass('is-invalid');
                 
+                const customerName = $('#customerName').val();
+                const customerEmail = $('#customerEmail').val();
+                const customerPhone = $('#customerPhone').val();
+                const customerMobile = $('#customerMobile').val();
+                const customerClientRec = parseInt($('#customerClient').val());
+
                 const customerData = {
-                    CustomerName: $('#customerName').val(),
-                    Email: $('#customerEmail').val(),
-                    Phone: $('#customerPhone').val(),
-                    Mobile: $('#customerMobile').val(),
-                    ClientRec: parseInt($('#customerClient').val())
+                    'Customer.CustomerName': customerName,
+                    'Customer.Email': customerEmail,
+                    'Customer.Phone': customerPhone,
+                    'Customer.Mobile': customerMobile,
+                    'Customer.ClientRec': customerClientRec
                 };
                 
                 // Basic client-side validation
                 let isValid = true;
-                if (!customerData.CustomerName.trim()) {
+                if (!customerName?.trim()) {
                     $('#customerName').addClass('is-invalid');
                     isValid = false;
                 }
-                if (!customerData.ClientRec) {
+                if (!customerClientRec) {
                     $('#customerClient').addClass('is-invalid');
                     isValid = false;
                 }
@@ -252,8 +258,10 @@
                 $.ajax({
                     url: '/Customers/Create?handler=Ajax',
                     type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(customerData),
+                    headers: {
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    data: customerData,
                     success: function(response) {
                         if (response.success) {
                             // Refresh customer dropdown
@@ -282,23 +290,31 @@
                 $('#siteValidationSummary').hide();
                 $('#addSiteForm .is-invalid').removeClass('is-invalid');
                 
+                const siteClientRec = parseInt($('#siteClient').val());
+                const siteName = $('#siteName').val();
+                const siteAddress1 = $('#siteAddress1').val();
+                const siteAddress2 = $('#siteAddress2').val();
+                const siteCity = $('#siteCity').val();
+                const siteState = $('#siteState').val();
+                const siteZip = $('#siteZip').val();
+
                 const siteData = {
-                    ClientRec: parseInt($('#siteClient').val()),
-                    SiteName: $('#siteName').val(),
-                    SiteAddress1: $('#siteAddress1').val(),
-                    SiteAddress2: $('#siteAddress2').val(),
-                    SiteCity: $('#siteCity').val(),
-                    SiteState: $('#siteState').val(),
-                    SiteZip: $('#siteZip').val()
+                    'Site.ClientRec': siteClientRec,
+                    'Site.SiteName': siteName,
+                    'Site.SiteAddress1': siteAddress1,
+                    'Site.SiteAddress2': siteAddress2,
+                    'Site.SiteCity': siteCity,
+                    'Site.SiteState': siteState,
+                    'Site.SiteZip': siteZip
                 };
                 
                 // Basic client-side validation
                 let isValid = true;
-                if (!siteData.SiteName.trim()) {
+                if (!siteName?.trim()) {
                     $('#siteName').addClass('is-invalid');
                     isValid = false;
                 }
-                if (!siteData.ClientRec) {
+                if (!siteClientRec) {
                     $('#siteClient').addClass('is-invalid');
                     isValid = false;
                 }
@@ -310,8 +326,10 @@
                 $.ajax({
                     url: '/Sites/Create?handler=Ajax',
                     type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(siteData),
+                    headers: {
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    data: siteData,
                     success: function(response) {
                         if (response.success) {
                             // Refresh site dropdown
@@ -352,6 +370,10 @@
                 $('#hourlyRateWasChanged').val('true');
             });
         });
+
+        function getAntiForgeryToken() {
+            return $('input[name="__RequestVerificationToken"]').val();
+        }
 
         function refreshHourlyRate(clientId) {
             if (!clientId) {
