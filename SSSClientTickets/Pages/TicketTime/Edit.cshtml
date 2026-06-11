@@ -45,6 +45,12 @@
                 <span asp-validation-for="TicketEntry.Notes" class="text-danger"></span>
             </div>
 
+            <div class="mb-3">
+                <label asp-for="TicketStatusRec" class="form-label">Ticket Status</label>
+                <select asp-for="TicketStatusRec" asp-items="Model.StatusList" class="form-select"></select>
+                <span asp-validation-for="TicketStatusRec" class="text-danger"></span>
+            </div>
+
             @{
                 var duration = (Model.TicketEntry.StartTime.HasValue && Model.TicketEntry.EndTime.HasValue)
                     ? (int)(Model.TicketEntry.EndTime.Value - Model.TicketEntry.StartTime.Value).TotalMinutes
