@@ -32,14 +32,21 @@ builder.Services.AddAuthorization(options =>
 
 // Register the database context
 builder.Services.AddDbContext<SssclientContext>(options =>
-    options.UseSqlServer(builder.Configuration
-        .GetConnectionString("SSSClientConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("SSSClientConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
 var app = builder.Build();
 
-// Apply migrations automatically on startup
-using (var scope = app.Services.CreateScope())
+var applyMigrationsOnStartup = builder.Configuration.GetValue(
+    "Database:ApplyMigrationsOnStartup",
+    builder.Environment.IsDevelopment());
+
+if (applyMigrationsOnStartup)
 {
+    // Keep automatic migrations opt-in outside development so IIS startup is not
+    // blocked by a transient database issue after an app pool idle/recycle.
+    using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<SssclientContext>();
     dbContext.Database.Migrate();
 }
