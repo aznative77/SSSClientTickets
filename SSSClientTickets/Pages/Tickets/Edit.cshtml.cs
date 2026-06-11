@@ -57,6 +57,7 @@ namespace SSSClientTickets.Pages.Tickets
                 t => t.CustomerRec,
                 t => t.SiteRec,
                 t => t.HourlyRate,
+                t => t.IsFlatRate,
                 t => t.Issue,
                 t => t.Resolution,
                 t => t.StatusRec,

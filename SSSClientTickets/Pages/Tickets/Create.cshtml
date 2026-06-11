@@ -59,6 +59,11 @@
                 <span asp-validation-for="Ticket.HourlyRate" class="text-danger"></span>
             </div>
 
+            <div class="form-check mb-3">
+                <input asp-for="Ticket.IsFlatRate" class="form-check-input" />
+                <label asp-for="Ticket.IsFlatRate" class="form-check-label">Flat rate / manual total</label>
+            </div>
+
             <div class="mb-3">
                 <label asp-for="Ticket.Issue" class="form-label">Issue</label>
                 <textarea asp-for="Ticket.Issue" class="form-control" rows="4"></textarea>

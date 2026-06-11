@@ -61,7 +61,10 @@
                     <dt class="col-sm-3">Cell Phone</dt>
                     <dd class="col-sm-9">@Model.Ticket.CustomerRecNavigation?.Mobile</dd>
 
-                    <dt class="col-sm-3">Hourly Rate</dt>
+                    <dt class="col-sm-3">Rate Type</dt>
+                    <dd class="col-sm-9">@(Model.Ticket.IsFlatRate ? "Flat" : "Hourly")</dd>
+
+                    <dt class="col-sm-3">@(Model.Ticket.IsFlatRate ? "Flat Total" : "Hourly Rate")</dt>
                     <dd class="col-sm-9">@Model.Ticket.HourlyRate.ToString("C")</dd>
 
                     <dt class="col-sm-3">Date Logged</dt>

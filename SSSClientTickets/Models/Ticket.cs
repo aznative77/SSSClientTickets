@@ -27,6 +27,8 @@ public partial class Ticket
 
     public decimal HourlyRate { get; set; }
 
+    public bool IsFlatRate { get; set; }
+
     public int? CreatedByUserId { get; set; }
 
     public int? ResolvedByUserId { get; set; }

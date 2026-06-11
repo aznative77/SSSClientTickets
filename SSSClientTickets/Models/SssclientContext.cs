@@ -221,6 +221,7 @@ public partial class SssclientContext : DbContext
             entity.Property(e => e.HourlyRate)
                 .HasColumnType("decimal(10, 2)")
                 .HasDefaultValue(0m);
+            entity.Property(e => e.IsFlatRate).HasDefaultValue(false);
             entity.Property(e => e.StatusRec).HasDefaultValue(1);
             entity.Property(e => e.DateBilled).HasColumnType("datetime");
 
