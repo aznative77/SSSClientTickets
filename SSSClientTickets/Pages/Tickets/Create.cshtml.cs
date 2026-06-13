@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SSSClientTickets.Models;
+using SSSClientTickets.Services;
 
 namespace SSSClientTickets.Pages.Tickets
 {
     public class CreateModel : PageModel
     {
         private readonly SssclientContext _context;
+        private readonly ICurrentUserService _currentUserService;
 
-        public CreateModel(SssclientContext context)
+        public CreateModel(SssclientContext context, ICurrentUserService currentUserService)
         {
             _context = context;
+            _currentUserService = currentUserService;
         }
 
         [BindProperty]
@@ -25,12 +28,14 @@ namespace SSSClientTickets.Pages.Tickets
         public SelectList CustomerList { get; set; } = default!;
         public SelectList StatusList { get; set; } = default!;
         public SelectList SiteList { get; set; } = default!;
+        public SelectList UserList { get; set; } = default!;
 
         public async Task OnGetAsync()
         {
             await PopulateDropdownsAsync();
             Ticket.DateLogged = DateTime.Today;
             Ticket.StatusRec = 1; // Default to Open
+            Ticket.AssignedToUserId = _currentUserService.UserId;
             HourlyRateWasChanged = false;
         }
 
@@ -39,6 +44,7 @@ namespace SSSClientTickets.Pages.Tickets
             ModelState.Remove("Ticket.ClientRecNavigation");
             ModelState.Remove("Ticket.CustomerRecNavigation");
             ModelState.Remove("Ticket.StatusRecNavigation");
+            ModelState.Remove("Ticket.AssignedToUser");
 
             if (!ModelState.IsValid)
             {
@@ -81,6 +87,16 @@ namespace SSSClientTickets.Pages.Tickets
                     .ThenBy(s => s.SiteName)
                     .ToListAsync(),
                 "SiteRec", "SiteName");
+
+            UserList = new SelectList(
+                await _context.AppUsers
+                    .Where(u => u.IsActive)
+                    .OrderByDescending(u => _currentUserService.UserId.HasValue && u.UserId == _currentUserService.UserId.Value)
+                    .ThenBy(u => u.LastName)
+                    .ThenBy(u => u.FirstName)
+                    .ThenBy(u => u.Email)
+                    .ToListAsync(),
+                "UserId", "FullName", Ticket.AssignedToUserId ?? _currentUserService.UserId);
         }
     }
 }

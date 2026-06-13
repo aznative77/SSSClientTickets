@@ -249,6 +249,11 @@ public partial class SssclientContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_Ticket_CreatedBy_AppUser");
 
+            entity.HasOne(d => d.AssignedToUser).WithMany(p => p.TicketsAssigned)
+                .HasForeignKey(d => d.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_Ticket_AssignedTo_AppUser");
+
             entity.HasOne(d => d.ResolvedByUser).WithMany(p => p.TicketsResolved)
                 .HasForeignKey(d => d.ResolvedByUserId)
                 .OnDelete(DeleteBehavior.Restrict)
@@ -348,6 +353,11 @@ public partial class SssclientContext : DbContext
             if (entry.State == EntityState.Added && entry.Entity.CreatedByUserId == null)
             {
                 entry.Entity.CreatedByUserId = userId;
+            }
+
+            if (entry.State == EntityState.Added && entry.Entity.AssignedToUserId == null)
+            {
+                entry.Entity.AssignedToUserId = entry.Entity.CreatedByUserId;
             }
 
             if (entry.State is EntityState.Added or EntityState.Modified

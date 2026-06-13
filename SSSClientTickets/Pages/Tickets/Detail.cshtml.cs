@@ -24,6 +24,7 @@ namespace SSSClientTickets.Pages.Tickets
                 .Include(t => t.StatusRecNavigation)
                 .Include(t => t.SiteRecNavigation)
                 .Include(t => t.CreatedByUser)
+                .Include(t => t.AssignedToUser)
                 .Include(t => t.ResolvedByUser)
                 .Include(t => t.TicketTimes)
                     .ThenInclude(tt => tt.TimeRecordedByUser)

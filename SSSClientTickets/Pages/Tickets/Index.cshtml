@@ -82,6 +82,11 @@
                     <select class="form-select" id="FilterCreatedByUserId" name="FilterCreatedByUserId" asp-items="Model.UserOptions" asp-for="FilterCreatedByUserId">
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label for="FilterAssignedToUserId" class="form-label">Assigned To</label>
+                    <select class="form-select" id="FilterAssignedToUserId" name="FilterAssignedToUserId" asp-items="Model.UserOptions" asp-for="FilterAssignedToUserId">
+                    </select>
+                </div>
                 <div>
                     <label for="FilterResolvedByUserId" class="form-label">Resolved By</label>
                     <select class="form-select" id="FilterResolvedByUserId" name="FilterResolvedByUserId" asp-items="Model.UserOptions" asp-for="FilterResolvedByUserId">
@@ -168,6 +173,7 @@ else
                 <th>Issue</th>
                 <th>Rate</th>
                 <th>Status</th>
+                <th>Assigned To</th>
                 <th>Date Logged</th>
                 <th></th>
             </tr>
@@ -203,6 +209,7 @@ else
                         }
                         <span class="badge @badgeClass">@ticket.StatusRecNavigation?.Status</span>
                     </td>
+                    <td>@(ticket.AssignedToUser?.FullName ?? ticket.AssignedToUser?.Email ?? "—")</td>
                     <td>@ticket.DateLogged?.ToString("MM/dd/yyyy")</td>
                     <td class="text-end">
                         <a asp-page="Detail" asp-route-id="@ticket.TicketRec" class="btn btn-sm btn-outline-secondary">View</a>

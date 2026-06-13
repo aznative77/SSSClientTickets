@@ -38,6 +38,9 @@ namespace SSSClientTickets.Pages.Tickets
         public int? FilterCreatedByUserId { get; set; }
 
         [BindProperty(SupportsGet = true)]
+        public int? FilterAssignedToUserId { get; set; }
+
+        [BindProperty(SupportsGet = true)]
         public int? FilterResolvedByUserId { get; set; }
 
         [BindProperty(SupportsGet = true)]
@@ -114,6 +117,7 @@ namespace SSSClientTickets.Pages.Tickets
                 .Include(t => t.CustomerRecNavigation)
                 .Include(t => t.StatusRecNavigation)
                 .Include(t => t.CreatedByUser)
+                .Include(t => t.AssignedToUser)
                 .Include(t => t.ResolvedByUser)
                 .AsQueryable();
 
@@ -136,6 +140,11 @@ namespace SSSClientTickets.Pages.Tickets
             if (FilterCreatedByUserId.HasValue && FilterCreatedByUserId > 0)
             {
                 query = query.Where(t => t.CreatedByUserId == FilterCreatedByUserId);
+            }
+
+            if (FilterAssignedToUserId.HasValue && FilterAssignedToUserId > 0)
+            {
+                query = query.Where(t => t.AssignedToUserId == FilterAssignedToUserId);
             }
 
             if (FilterResolvedByUserId.HasValue && FilterResolvedByUserId > 0)

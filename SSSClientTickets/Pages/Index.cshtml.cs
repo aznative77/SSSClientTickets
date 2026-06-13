@@ -29,7 +29,7 @@ namespace SSSClientTickets.Pages
                 .Include(t => t.CustomerRecNavigation)
                 .Include(t => t.StatusRecNavigation)
                 .Where(t => openStatuses.Contains(t.StatusRecNavigation.Status)
-                    && t.CreatedByUserId == _currentUserService.UserId)
+                    && t.AssignedToUserId == _currentUserService.UserId)
                 .OrderByDescending(t => t.DateLogged)
                 .ToListAsync();
         }

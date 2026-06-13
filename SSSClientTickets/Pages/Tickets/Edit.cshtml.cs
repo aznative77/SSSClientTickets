@@ -22,6 +22,7 @@ namespace SSSClientTickets.Pages.Tickets
         public SelectList CustomerList { get; set; } = default!;
         public SelectList StatusList { get; set; } = default!;
         public SelectList SiteList { get; set; } = default!;
+        public SelectList UserList { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -39,6 +40,7 @@ namespace SSSClientTickets.Pages.Tickets
             ModelState.Remove("Ticket.ClientRecNavigation");
             ModelState.Remove("Ticket.CustomerRecNavigation");
             ModelState.Remove("Ticket.StatusRecNavigation");
+            ModelState.Remove("Ticket.AssignedToUser");
 
             if (!ModelState.IsValid)
             {
@@ -61,6 +63,7 @@ namespace SSSClientTickets.Pages.Tickets
                 t => t.Issue,
                 t => t.Resolution,
                 t => t.StatusRec,
+                t => t.AssignedToUserId,
                 t => t.DateLogged,
                 t => t.DateResolved,
                 t => t.DateBilled);
@@ -100,6 +103,15 @@ namespace SSSClientTickets.Pages.Tickets
                     .ThenBy(s => s.SiteName)
                     .ToListAsync(),
                 "SiteRec", "SiteName", Ticket.SiteRec);
+
+            UserList = new SelectList(
+                await _context.AppUsers
+                    .Where(u => u.IsActive || u.UserId == Ticket.AssignedToUserId)
+                    .OrderBy(u => u.LastName)
+                    .ThenBy(u => u.FirstName)
+                    .ThenBy(u => u.Email)
+                    .ToListAsync(),
+                "UserId", "FullName", Ticket.AssignedToUserId);
         }
     }
 }

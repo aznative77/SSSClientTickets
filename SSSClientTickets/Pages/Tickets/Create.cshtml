@@ -77,17 +77,22 @@
             </div>
 
             <div class="row mb-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label asp-for="Ticket.StatusRec" class="form-label">Status</label>
                     <select asp-for="Ticket.StatusRec" asp-items="Model.StatusList" class="form-select"></select>
                     <span asp-validation-for="Ticket.StatusRec" class="text-danger"></span>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label asp-for="Ticket.AssignedToUserId" class="form-label">Assigned To</label>
+                    <select asp-for="Ticket.AssignedToUserId" asp-items="Model.UserList" class="form-select"></select>
+                    <span asp-validation-for="Ticket.AssignedToUserId" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
                     <label asp-for="Ticket.DateLogged" class="form-label">Date Logged</label>
                     <input asp-for="Ticket.DateLogged" class="form-control" type="date" />
                     <span asp-validation-for="Ticket.DateLogged" class="text-danger"></span>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label asp-for="Ticket.DateResolved" class="form-label">Date Resolved</label>
                     <input asp-for="Ticket.DateResolved" class="form-control" type="date" />
                     <span asp-validation-for="Ticket.DateResolved" class="text-danger"></span>

@@ -31,6 +31,8 @@ public partial class Ticket
 
     public int? CreatedByUserId { get; set; }
 
+    public int? AssignedToUserId { get; set; }
+
     public int? ResolvedByUserId { get; set; }
 
     public virtual Client ClientRecNavigation { get; set; } = null!;
@@ -42,6 +44,8 @@ public partial class Ticket
     public virtual TicketStatus StatusRecNavigation { get; set; } = null!;
 
     public virtual AppUser? CreatedByUser { get; set; }
+
+    public virtual AppUser? AssignedToUser { get; set; }
 
     public virtual AppUser? ResolvedByUser { get; set; }
 

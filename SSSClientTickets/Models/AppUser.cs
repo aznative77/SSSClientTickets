@@ -34,6 +34,8 @@ public class AppUser
 
     public virtual ICollection<Ticket> TicketsCreated { get; set; } = new List<Ticket>();
 
+    public virtual ICollection<Ticket> TicketsAssigned { get; set; } = new List<Ticket>();
+
     public virtual ICollection<Ticket> TicketsResolved { get; set; } = new List<Ticket>();
 
     public virtual ICollection<TicketTime> TicketTimesRecorded { get; set; } = new List<TicketTime>();
