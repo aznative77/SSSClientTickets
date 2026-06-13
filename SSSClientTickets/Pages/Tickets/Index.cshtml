@@ -164,14 +164,14 @@
 }
 else
 {
-    <table class="table table-striped table-hover">
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
         <thead class="table-dark">
             <tr>
                 <th>#</th>
                 <th>Client</th>
                 <th>Customer</th>
                 <th>Issue</th>
-                <th>Rate</th>
                 <th>Status</th>
                 <th>Assigned To</th>
                 <th>Date Logged</th>
@@ -186,16 +186,15 @@ else
                     <td>@ticket.ClientRecNavigation?.ClientName</td>
                     <td>@ticket.CustomerRecNavigation?.CustomerName</td>
                     <td>
-                        @if (ticket.Issue != null && ticket.Issue.Length > 60)
+                        @if (ticket.Issue != null && ticket.Issue.Length > 80)
                         {
-                            @(ticket.Issue.Substring(0, 60) + "...")
+                            @(ticket.Issue.Substring(0, 80) + "...")
                         }
                         else
                         {
                             @ticket.Issue
                         }
                     </td>
-                    <td>@ticket.HourlyRate.ToString("C")</td>
                     <td>
                         @{
                             var badgeClass = ticket.StatusRecNavigation?.Status switch
@@ -209,7 +208,27 @@ else
                         }
                         <span class="badge @badgeClass">@ticket.StatusRecNavigation?.Status</span>
                     </td>
-                    <td>@(ticket.AssignedToUser?.FullName ?? ticket.AssignedToUser?.Email ?? "—")</td>
+                    <td>
+                        <form method="post" asp-page-handler="UpdateAssignedTo" class="mb-0 assigned-to-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="ticketRec" value="@ticket.TicketRec" />
+                            <input type="hidden" name="returnUrl" value="@(Request.Path + Request.QueryString)" />
+                            <select name="assignedToUserId" class="form-select form-select-sm assigned-to-select" onchange="this.form.submit()" aria-label="Assigned to for ticket @ticket.TicketRec">
+                                @foreach (var user in Model.AssignmentUserOptions)
+                                {
+                                    if (user.Value == ticket.AssignedToUserId?.ToString())
+                                    {
+                                        <option value="@user.Value" selected>@user.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@user.Value">@user.Text</option>
+                                    }
+                                }
+                            </select>
+                            <div class="assignment-update-feedback text-success small visually-hidden" aria-live="polite"></div>
+                        </form>
+                    </td>
                     <td>@ticket.DateLogged?.ToString("MM/dd/yyyy")</td>
                     <td class="text-end">
                         <a asp-page="Detail" asp-route-id="@ticket.TicketRec" class="btn btn-sm btn-outline-secondary">View</a>
@@ -219,10 +238,30 @@ else
                 </tr>
             }
         </tbody>
-    </table>
+        </table>
+    </div>
 }
 
-<script>
+<script> 
+    // Prevent table row wrapping
+    const style = document.createElement('style');
+    style.textContent = `
+        .table-responsive .table tbody td,
+        .table-responsive .table thead th {
+            white-space: nowrap;
+        }
+        .table-responsive .table tbody tr td:nth-child(4) {
+            max-width: 450px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+        }
+        .table-responsive .table .assignment-update-feedback {
+            white-space: normal;
+        }
+    `;
+    document.head.appendChild(style);
+
     // Update button text to show selected count for Status
     function updateStatusButtonText() {
         const checkedCount = document.querySelectorAll('.status-checkbox:checked').length;
@@ -328,6 +367,52 @@ else
         // Add listener to client select
         const clientSelect = document.getElementById('FilterClientRec');
         clientSelect.addEventListener('change', loadCustomersByClient);
+
+        // Make assignment updates via AJAX and keep UI state
+        document.querySelectorAll('.assigned-to-form').forEach(form => {
+            const select = form.querySelector('.assigned-to-select');
+            const feedback = form.querySelector('.assignment-update-feedback');
+
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const formData = new FormData(form);
+                const handlerUrl = form.action || window.location.href;
+
+                try {
+                    const response = await fetch(handlerUrl, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (response.ok) {
+                        feedback.textContent = 'Assigned user updated.';
+                        feedback.classList.remove('visually-hidden');
+                        setTimeout(() => feedback.classList.add('visually-hidden'), 2500);
+                    } else {
+                        const errorText = await response.text();
+                        feedback.textContent = `Error: ${errorText || response.statusText}`;
+                        feedback.classList.remove('visually-hidden');
+                        feedback.classList.add('text-danger');
+                        setTimeout(() => {
+                            feedback.classList.add('visually-hidden');
+                            feedback.classList.remove('text-danger');
+                        }, 4000);
+                    }
+                } catch (error) {
+                    feedback.textContent = 'Unable to update assigned user.';
+                    feedback.classList.remove('visually-hidden');
+                    feedback.classList.add('text-danger');
+                    setTimeout(() => {
+                        feedback.classList.add('visually-hidden');
+                        feedback.classList.remove('text-danger');
+                    }, 4000);
+                }
+            });
+        });
 
         const filterTicketsBody = document.getElementById('filterTicketsBody');
         const filterToggleButton = document.querySelector('.filter-toggle-button');

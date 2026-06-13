@@ -23,6 +23,7 @@ namespace SSSClientTickets.Pages.Tickets
         public List<SelectListItem> ClientOptions { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> CustomerOptions { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> UserOptions { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> AssignmentUserOptions { get; set; } = new List<SelectListItem>();
 
         // Filter properties
         [BindProperty(SupportsGet = true)]
@@ -109,6 +110,18 @@ namespace SSSClientTickets.Pages.Tickets
                             ? $"{u.FullName} (Me)"
                             : u.FullName,
                         u.UserId.ToString())))
+                .ToList();
+
+            AssignmentUserOptions = users
+                .OrderByDescending(u => currentUserId.HasValue && u.UserId == currentUserId.Value)
+                .ThenBy(u => u.LastName)
+                .ThenBy(u => u.FirstName)
+                .ThenBy(u => u.Email)
+                .Select(u => new SelectListItem(
+                    currentUserId.HasValue && u.UserId == currentUserId.Value
+                        ? $"{u.FullName} (Me)"
+                        : u.FullName,
+                    u.UserId.ToString()))
                 .ToList();
 
             // Build query
@@ -198,6 +211,39 @@ namespace SSSClientTickets.Pages.Tickets
                 .OrderByDescending(t => t.DateLogged)
                 .ThenByDescending(t => t.TicketRec)
                 .ToListAsync();
+        }
+
+        public async Task<IActionResult> OnPostUpdateAssignedToAsync(int ticketRec, int assignedToUserId, string? returnUrl)
+        {
+            var ticket = await _context.Tickets.FindAsync(ticketRec);
+            if (ticket == null)
+            {
+                return NotFound();
+            }
+
+            var assignedToUserExists = await _context.AppUsers
+                .AnyAsync(u => u.UserId == assignedToUserId && u.IsActive);
+
+            if (!assignedToUserExists)
+            {
+                return BadRequest("Assigned user is not active.");
+            }
+
+            ticket.AssignedToUserId = assignedToUserId;
+            await _context.SaveChangesAsync();
+
+            var isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            if (isAjax)
+            {
+                return new OkResult();
+            }
+
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
+
+            return RedirectToPage("Index");
         }
     }
 }
