@@ -74,7 +74,25 @@
                     <dd class="col-sm-9">@(Model.Ticket.CreatedByUser?.FullName ?? Model.Ticket.CreatedByUser?.Email ?? "—")</dd>
 
                     <dt class="col-sm-3">Assigned To</dt>
-                    <dd class="col-sm-9">@(Model.Ticket.AssignedToUser?.FullName ?? Model.Ticket.AssignedToUser?.Email ?? "—")</dd>
+                    <dd class="col-sm-9">
+                        <form method="post" asp-page-handler="UpdateAssignedTo" class="mb-0">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Ticket.TicketRec" />
+                            <select name="assignedToUserId" class="form-select form-select-sm w-auto" onchange="this.form.submit()" aria-label="Assigned to for ticket @Model.Ticket.TicketRec">
+                                @foreach (var user in Model.AssignmentUserOptions)
+                                {
+                                    if (user.Selected)
+                                    {
+                                        <option value="@user.Value" selected>@user.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@user.Value">@user.Text</option>
+                                    }
+                                }
+                            </select>
+                        </form>
+                    </dd>
 
                     <dt class="col-sm-3">Date Resolved</dt>
                     <dd class="col-sm-9">@(Model.Ticket.DateResolved?.ToString("MM/dd/yyyy") ?? "—")</dd>
