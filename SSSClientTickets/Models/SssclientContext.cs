@@ -418,6 +418,7 @@ public partial class SssclientContext : DbContext
                 Client => "Client",
                 Customer => "Customer",
                 Site => "Site",
+                Ticket => "Ticket",
                 _ => null
             };
 
@@ -458,14 +459,60 @@ public partial class SssclientContext : DbContext
         return ticket.DateResolved.HasValue || ticket.StatusRec == 4;
     }
 
-    private static string BuildChangeDescription(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, string entityName)
+    private string BuildChangeDescription(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, string entityName)
     {
         if (entry.Entity is AppUser user)
         {
             return BuildUserChangeDescription(entry, user);
         }
 
+        if (entry.Entity is Ticket ticket)
+        {
+            return BuildTicketChangeDescription(entry, ticket);
+        }
+
         return $"{entry.State} {entityName}";
+    }
+
+    private string BuildTicketChangeDescription(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, Ticket ticket)
+    {
+        if (entry.State == EntityState.Added)
+        {
+            return $"Created ticket #{ticket.TicketRec}";
+        }
+
+        if (entry.State == EntityState.Deleted)
+        {
+            return $"Deleted ticket #{ticket.TicketRec}";
+        }
+
+        var changes = new List<string>();
+
+        if (entry.Property(nameof(Ticket.AssignedToUserId)).IsModified)
+        {
+            var originalId = entry.Property(nameof(Ticket.AssignedToUserId)).OriginalValue as int?;
+            var currentId = entry.Property(nameof(Ticket.AssignedToUserId)).CurrentValue as int?;
+
+            var originalName = GetUserNameById(originalId) ?? "Unassigned";
+            var currentName = GetUserNameById(currentId) ?? "Unassigned";
+
+            changes.Add($"changed assigned user from {originalName} to {currentName}");
+        }
+
+        return changes.Count == 0
+            ? $"Updated ticket #{ticket.TicketRec}"
+            : $"Updated ticket #{ticket.TicketRec}: {string.Join(", ", changes)}";
+    }
+
+    private string? GetUserNameById(int? userId)
+    {
+        if (!userId.HasValue)
+        {
+            return null;
+        }
+
+        return AppUsers.Local.FirstOrDefault(u => u.UserId == userId.Value)?.FullName
+            ?? AppUsers.Find(userId.Value)?.FullName;
     }
 
     private static string BuildUserChangeDescription(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, AppUser user)
