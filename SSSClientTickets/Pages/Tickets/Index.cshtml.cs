@@ -22,6 +22,7 @@ namespace SSSClientTickets.Pages.Tickets
         public List<SelectListItem> StatusOptions { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> ClientOptions { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> CustomerOptions { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> SiteOptions { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> UserOptions { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> AssignmentUserOptions { get; set; } = new List<SelectListItem>();
 
@@ -34,6 +35,9 @@ namespace SSSClientTickets.Pages.Tickets
 
         [BindProperty(SupportsGet = true)]
         public int[]? FilterCustomerRec { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int[]? FilterSiteRec { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public int? FilterCreatedByUserId { get; set; }
@@ -95,6 +99,18 @@ namespace SSSClientTickets.Pages.Tickets
                 .Select(c => new SelectListItem(c.CustomerName, c.CustomerRec.ToString()))
                 .ToList();
 
+            // Load sites filtered by selected client if applicable
+            var sitesQuery = _context.Sites.AsQueryable();
+            if (FilterClientRec.HasValue && FilterClientRec > 0)
+            {
+                sitesQuery = sitesQuery.Where(s => s.ClientRec == FilterClientRec);
+            }
+            var sites = await sitesQuery.ToListAsync();
+            SiteOptions = sites
+                .OrderBy(s => s.SiteName)
+                .Select(s => new SelectListItem(s.SiteName, s.SiteRec.ToString()))
+                .ToList();
+
             var currentUserId = _currentUserService.UserId;
             var users = await _context.AppUsers
                 .Where(u => u.IsActive)
@@ -128,6 +144,7 @@ namespace SSSClientTickets.Pages.Tickets
             var query = _context.Tickets
                 .Include(t => t.ClientRecNavigation)
                 .Include(t => t.CustomerRecNavigation)
+                .Include(t => t.SiteRecNavigation)
                 .Include(t => t.StatusRecNavigation)
                 .Include(t => t.CreatedByUser)
                 .Include(t => t.AssignedToUser)
@@ -148,6 +165,11 @@ namespace SSSClientTickets.Pages.Tickets
             if (FilterCustomerRec != null && FilterCustomerRec.Length > 0)
             {
                 query = query.Where(t => FilterCustomerRec.Contains(t.CustomerRec));
+            }
+
+             if (FilterSiteRec != null && FilterSiteRec.Length > 0)
+            {
+                query = query.Where(t => t.SiteRec != null && FilterSiteRec.Contains(t.SiteRec.Value));
             }
 
             if (FilterCreatedByUserId.HasValue && FilterCreatedByUserId > 0)

@@ -66,6 +66,7 @@ namespace SSSClientTickets.Pages.TicketTime
             TicketInfo = await _context.Tickets
                 .Include(t => t.ClientRecNavigation)
                 .Include(t => t.CustomerRecNavigation)
+                .Include(t => t.SiteRecNavigation)
                 .FirstOrDefaultAsync(t => t.TicketRec == ticketRec);
 
             return TicketInfo != null;

@@ -43,37 +43,61 @@
                 </div>
             </div>
 
-            <div class="col-md-3">
-                <label for="FilterClientRec" class="form-label">Client</label>
-                <select class="form-select" id="FilterClientRec" name="FilterClientRec" asp-items="Model.ClientOptions" asp-for="FilterClientRec">
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label">Customer</label>
-                <div class="dropdown" id="customerDropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="customerButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        Select Customers
-                    </button>
-                    <ul class="dropdown-menu w-100" aria-labelledby="customerButton" id="customerDropdownMenu">
-                        @foreach (var customer in Model.CustomerOptions)
-                        {
-                            <li class="px-3 py-2">
-                                <div class="form-check">
-                                    <input class="form-check-input customer-checkbox" type="checkbox" value="@customer.Value" id="customer_@customer.Value" name="FilterCustomerRec" @(Model.FilterCustomerRec?.Contains(int.Parse(customer.Value)) == true ? "checked" : "")>
-                                    <label class="form-check-label" for="customer_@customer.Value">
-                                        @customer.Text
-                                    </label>
-                                </div>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-
-            <div class="col-md-3">
+            <div class="col-md-9">
                 <label for="FilterIssueSearch" class="form-label">Issue Search</label>
                 <input type="text" class="form-control" id="FilterIssueSearch" name="FilterIssueSearch" placeholder="Search issue..." asp-for="FilterIssueSearch">
+            </div>
+
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <label for="FilterClientRec" class="form-label">Client</label>
+                    <select class="form-select" id="FilterClientRec" name="FilterClientRec" asp-items="Model.ClientOptions" asp-for="FilterClientRec">
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Customer</label>
+                    <div class="dropdown" id="customerDropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="customerButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            Select Customers
+                        </button>
+                        <ul class="dropdown-menu w-100" aria-labelledby="customerButton" id="customerDropdownMenu">
+                            @foreach (var customer in Model.CustomerOptions)
+                            {
+                                <li class="px-3 py-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input customer-checkbox" type="checkbox" value="@customer.Value" id="customer_@customer.Value" name="FilterCustomerRec" @(Model.FilterCustomerRec?.Contains(int.Parse(customer.Value)) == true ? "checked" : "")>
+                                        <label class="form-check-label" for="customer_@customer.Value">
+                                            @customer.Text
+                                        </label>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Site</label>
+                    <div class="dropdown" id="siteDropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="siteButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            Select Sites
+                        </button>
+                        <ul class="dropdown-menu w-100" aria-labelledby="siteButton" id="siteDropdownMenu">
+                            @foreach (var site in Model.SiteOptions)
+                            {
+                                <li class="px-3 py-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input site-checkbox" type="checkbox" value="@site.Value" id="site_@site.Value" name="FilterSiteRec" @(Model.FilterSiteRec?.Contains(int.Parse(site.Value)) == true ? "checked" : "")>
+                                        <label class="form-check-label" for="site_@site.Value">
+                                            @site.Text
+                                        </label>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
             </div>
 
             <div class="col-md-3">
@@ -94,35 +118,37 @@
                 </div>
             </div>
 
-            <fieldset class="col-md-3 date-filter-fieldset">
-                <legend class="form-label fs-6">Date Logged</legend>
-                <div class="row g-2">
-                    <div class="col-md-6">
-                        <label for="FilterDateLoggedFrom" class="form-label">From</label>
-                        <input type="date" class="form-control" id="FilterDateLoggedFrom" name="FilterDateLoggedFrom" asp-for="FilterDateLoggedFrom">
-                    </div>
+            <div class="col-md-3">
+                <fieldset class="date-filter-fieldset">
+                    <legend class="form-label fs-6">Date Logged</legend>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label for="FilterDateLoggedFrom" class="form-label">From</label>
+                            <input type="date" class="form-control" id="FilterDateLoggedFrom" name="FilterDateLoggedFrom" asp-for="FilterDateLoggedFrom">
+                        </div>
 
-                    <div class="col-md-6">
-                        <label for="FilterDateLoggedTo" class="form-label">To</label>
-                        <input type="date" class="form-control" id="FilterDateLoggedTo" name="FilterDateLoggedTo" asp-for="FilterDateLoggedTo">
+                        <div class="col-md-6">
+                            <label for="FilterDateLoggedTo" class="form-label">To</label>
+                            <input type="date" class="form-control" id="FilterDateLoggedTo" name="FilterDateLoggedTo" asp-for="FilterDateLoggedTo">
+                        </div>
                     </div>
-                </div>
-            </fieldset>
+                </fieldset>
 
-            <fieldset class="col-md-3 date-filter-fieldset">
-                <legend class="form-label fs-6">Date Resolved</legend>
-                <div class="row g-2">
-                    <div class="col-md-6">
-                        <label for="FilterDateResolvedFrom" class="form-label">From</label>
-                        <input type="date" class="form-control" id="FilterDateResolvedFrom" name="FilterDateResolvedFrom" asp-for="FilterDateResolvedFrom">
-                    </div>
+                <fieldset class="date-filter-fieldset">
+                    <legend class="form-label fs-6">Date Resolved</legend>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label for="FilterDateResolvedFrom" class="form-label">From</label>
+                            <input type="date" class="form-control" id="FilterDateResolvedFrom" name="FilterDateResolvedFrom" asp-for="FilterDateResolvedFrom">
+                        </div>
 
-                    <div class="col-md-6">
-                        <label for="FilterDateResolvedTo" class="form-label">To</label>
-                        <input type="date" class="form-control" id="FilterDateResolvedTo" name="FilterDateResolvedTo" asp-for="FilterDateResolvedTo">
+                        <div class="col-md-6">
+                            <label for="FilterDateResolvedTo" class="form-label">To</label>
+                            <input type="date" class="form-control" id="FilterDateResolvedTo" name="FilterDateResolvedTo" asp-for="FilterDateResolvedTo">
+                        </div>
                     </div>
-                </div>
-            </fieldset>
+                </fieldset>
+            </div>
 
             <fieldset class="col-md-3 date-filter-fieldset">
                 <legend class="form-label fs-6">Date Billed</legend>
@@ -285,9 +311,21 @@ else
             button.textContent = checkedCount + (checkedCount === 1 ? ' Customer' : ' Customers') + ' Selected';
         }
     }
+
+    // Update button text to show selected count for Site
+    function updateSiteButtonText() {
+        const checkedCount = document.querySelectorAll('.site-checkbox:checked').length;
+        const button = document.getElementById('siteButton');
+        
+        if (checkedCount === 0) {
+            button.textContent = 'Select Sites';
+        } else {
+            button.textContent = checkedCount + (checkedCount === 1 ? ' Site' : ' Sites') + ' Selected';
+        }
+    }
     
-    // Load customers for selected client
-    async function loadCustomersByClient() {
+    // Load customers and sites for selected client
+    async function loadCustomersAndSitesByClient() {
         const clientSelect = document.getElementById('FilterClientRec');
         const clientId = clientSelect.value;
         
@@ -295,6 +333,9 @@ else
             // Clear all customer checkboxes
             document.querySelectorAll('.customer-checkbox').forEach(cb => cb.checked = false);
             updateCustomerButtonText();
+            // Clear all site checkboxes
+            document.querySelectorAll('.site-checkbox').forEach(cb => cb.checked = false);
+            updateSiteButtonText();
             return;
         }
         
@@ -333,12 +374,49 @@ else
         } catch (error) {
             console.error('Error loading customers:', error);
         }
+
+        try {
+            const response = await fetch(`/api/tickets/sites-by-client?clientId=${clientId}`);
+            const sites = await response.json();
+            
+            const dropdownMenu = document.getElementById('siteDropdownMenu');
+            dropdownMenu.innerHTML = '';
+            
+            if (sites.length === 0) {
+                dropdownMenu.innerHTML = '<li class="px-3 py-2"><em>No sites for this client</em></li>';
+            } else {
+                sites.forEach(site => {
+                    const li = document.createElement('li');
+                    li.className = 'px-3 py-2';
+                    li.innerHTML = `
+                        <div class="form-check">
+                            <input class="form-check-input site-checkbox" type="checkbox" value="${site.value}" id="site_${site.value}" name="FilterSiteRec">
+                            <label class="form-check-label" for="site_${site.value}">
+                                ${site.text}
+                            </label>
+                        </div>
+                    `;
+                    dropdownMenu.appendChild(li);
+                    
+                    // Add event listener to new checkbox
+                    li.querySelector('.site-checkbox').addEventListener('change', updateSiteButtonText);
+                    li.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                });
+            }
+            
+            updateSiteButtonText();
+        } catch (error) {
+            console.error('Error loading sites:', error);
+        }
     }
     
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         updateStatusButtonText();
         updateCustomerButtonText();
+        updateSiteButtonText();
         
         // Add change listeners to status checkboxes
         document.querySelectorAll('.status-checkbox').forEach(checkbox => {
@@ -363,10 +441,22 @@ else
                 e.stopPropagation();
             });
         });
+
+        // Add change listeners to site checkboxes
+        document.querySelectorAll('.site-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateSiteButtonText);
+        });
+        
+        // Prevent dropdown from closing when clicking on site checkboxes
+        document.querySelectorAll('#siteDropdown .dropdown-menu li').forEach(li => {
+            li.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
         
         // Add listener to client select
         const clientSelect = document.getElementById('FilterClientRec');
-        clientSelect.addEventListener('change', loadCustomersByClient);
+        clientSelect.addEventListener('change', loadCustomersAndSitesByClient);
 
         // Make assignment updates via AJAX and keep UI state
         document.querySelectorAll('.assigned-to-form').forEach(form => {

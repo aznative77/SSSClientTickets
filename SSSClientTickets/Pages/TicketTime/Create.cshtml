@@ -16,7 +16,12 @@
         {
             <div class="alert alert-secondary mb-4">
                 <strong>@Model.TicketInfo.ClientRecNavigation?.ClientName</strong> —
-                @Model.TicketInfo.CustomerRecNavigation?.CustomerName<br />
+                @Model.TicketInfo.CustomerRecNavigation?.CustomerName
+                @if (!string.IsNullOrEmpty(Model.TicketInfo.SiteRecNavigation?.SiteName))
+                {
+                    <span>— @Model.TicketInfo.SiteRecNavigation.SiteName</span>
+                }
+                <br />
                 <small class="text-muted">@Model.TicketInfo.Issue?.Substring(0, Math.Min(Model.TicketInfo.Issue.Length, 100))</small>
             </div>
         }
