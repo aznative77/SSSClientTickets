@@ -4,14 +4,15 @@ SSSClientTickets is an ASP.NET Core 8 Razor Pages application for managing clien
 
 ## Overview
 
-The app tracks support work across clients, customers, and sites. It includes authenticated user accounts so ticket activity can be tied back to the person who created, resolved, recorded, uploaded, or changed information.
+The app tracks support work across clients, customers, and sites. It includes authenticated user accounts so ticket activity can be tied back to the person who created, assigned, resolved, recorded, uploaded, or changed information.
 
 ## Features
 
 - **Client Management** - Create and manage client records.
 - **Customer Management** - Track customer contact information associated with clients.
 - **Site Management** - Organize client locations and associate tickets with sites.
-- **Ticket Management** - Create, edit, view, and delete support tickets.
+- **Ticket Management** - Create, edit, view, assign, and delete support tickets.
+- **Ticket Assignment and Billing** - Assign tickets to active users, mark billing dates, and track flat-rate or hourly work.
 - **Ticket Time Tracking** - Log time spent on each ticket.
 - **Ticket Attachments** - Upload, preview, download, and delete files attached to tickets.
 - **User Authentication** - Login/register flow using cookie authentication and hashed passwords.
@@ -125,6 +126,9 @@ Recent authentication and audit migrations include:
 - `RequireFirstAndLastName`
 - `AddUserApproval`
 - `AddTicketAttachmentUploadedBy`
+- `AddTicketBilled`
+- `AddTicketFlatRate`
+- `AddTicketAssignedToUser`
 
 ## Project Structure
 
