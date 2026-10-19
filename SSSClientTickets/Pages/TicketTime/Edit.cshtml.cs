@@ -21,6 +21,9 @@ namespace SSSClientTickets.Pages.TicketTime
         [BindProperty]
         public int TicketStatusRec { get; set; }
 
+        [BindProperty]
+        public DateTime? DateResolved { get; set; }
+
         public Ticket? TicketInfo { get; set; }
         public SelectList StatusList { get; set; } = default!;
 
@@ -36,6 +39,7 @@ namespace SSSClientTickets.Pages.TicketTime
                 return NotFound();
 
             TicketStatusRec = TicketInfo!.StatusRec;
+            DateResolved = TicketInfo.DateResolved;
             await PopulateDropdownsAsync();
 
             return Page();
@@ -61,6 +65,8 @@ namespace SSSClientTickets.Pages.TicketTime
                 return NotFound();
 
             ticket.StatusRec = TicketStatusRec;
+            if (DateResolved.HasValue)
+                ticket.DateResolved = DateResolved.Value.Date;
 
             await TryUpdateModelAsync(
                 entryToUpdate,

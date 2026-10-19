@@ -24,6 +24,7 @@
         <form method="post">
             <input type="hidden" asp-for="TicketEntry.TimeRec" />
             <input type="hidden" asp-for="TicketEntry.TicketRec" />
+            <input type="hidden" asp-for="DateResolved" id="dateResolved" />
             <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
             <div class="row mb-3">
@@ -75,4 +76,32 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const statusSelect = document.getElementById('TicketStatusRec');
+        const resolvedDate = document.getElementById('dateResolved');
+        const oldResolvedDate = '@(Model.TicketInfo?.DateResolved?.ToString("yyyy-MM-dd") ?? "")';
+        statusSelect.addEventListener('change', function () {
+            if (this.options[this.selectedIndex].text.trim().toLowerCase() !== 'resolved') return;
+            const startDate = document.getElementById('TicketEntry_StartTime').value;
+            const endDate = document.getElementById('TicketEntry_EndTime').value;
+            const proposed = (endDate || startDate || new Date().toISOString()).slice(0, 10);
+            const displayDate = new Date(proposed + 'T00:00:00').toLocaleDateString();
+            const oldDisplayDate = oldResolvedDate ? new Date(oldResolvedDate + 'T00:00:00').toLocaleDateString() : null;
+            const message = oldDisplayDate
+                ? `Would you like to update the Resolved Date from ${oldDisplayDate} to ${displayDate}?`
+                : `Would you like to set the Resolved Date to ${displayDate}?`;
+            askYesNo(message).then(yes => { if (yes) resolvedDate.value = proposed; });
+        });
+
+        function askYesNo(message) {
+            return new Promise(resolve => {
+                const dialog = document.createElement('dialog');
+                dialog.innerHTML = '<form method="dialog" style="min-width: 300px"><p></p><div style="display:flex;justify-content:flex-end;gap:.5rem"><button value="no" class="btn btn-outline-secondary">No</button><button value="yes" class="btn btn-primary">Yes</button></div></form>';
+                dialog.querySelector('p').textContent = message;
+                dialog.addEventListener('close', () => { const yes = dialog.returnValue === 'yes'; dialog.remove(); resolve(yes); }, { once: true });
+                document.body.appendChild(dialog);
+                dialog.showModal();
+            });
+        }
+    </script>
 }

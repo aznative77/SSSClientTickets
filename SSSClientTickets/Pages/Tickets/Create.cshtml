@@ -225,6 +225,33 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const statusSelect = document.getElementById('Ticket_StatusRec');
+        const resolvedDate = document.getElementById('Ticket_DateResolved');
+        const oldResolvedDate = '@(Model.Ticket.DateResolved?.ToString("yyyy-MM-dd") ?? "")';
+        statusSelect.addEventListener('change', function () {
+            if (this.options[this.selectedIndex].text.trim().toLowerCase() !== 'resolved') return;
+            const now = new Date();
+            const proposed = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const displayDate = new Date(proposed + 'T00:00:00').toLocaleDateString();
+            const oldDisplayDate = oldResolvedDate ? new Date(oldResolvedDate + 'T00:00:00').toLocaleDateString() : null;
+            const message = oldDisplayDate
+                ? `Would you like to update the Resolved Date from ${oldDisplayDate} to ${displayDate}?`
+                : `Would you like to set the Resolved Date to ${displayDate}?`;
+            askYesNo(message).then(yes => { if (yes) resolvedDate.value = proposed; });
+        });
+
+        function askYesNo(message) {
+            return new Promise(resolve => {
+                const dialog = document.createElement('dialog');
+                dialog.innerHTML = '<form method="dialog" style="min-width: 300px"><p></p><div style="display:flex;justify-content:flex-end;gap:.5rem"><button value="no" class="btn btn-outline-secondary">No</button><button value="yes" class="btn btn-primary">Yes</button></div></form>';
+                dialog.querySelector('p').textContent = message;
+                dialog.addEventListener('close', () => { const yes = dialog.returnValue === 'yes'; dialog.remove(); resolve(yes); }, { once: true });
+                document.body.appendChild(dialog);
+                dialog.showModal();
+            });
+        }
+    </script>
     
     <script>
         $(document).ready(function() {
